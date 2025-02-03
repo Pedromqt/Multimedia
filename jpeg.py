@@ -49,6 +49,6 @@ def main():
     R,G,B = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
     ###############
     imgRec = decoder(R,G,B)
-
+    showImg(imgRec,"Imagem Reconstruida")
 if __name__ == "__main__":
     main()
