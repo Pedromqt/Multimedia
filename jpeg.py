@@ -50,5 +50,8 @@ def main():
     ###############
     imgRec = decoder(R,G,B)
     showImg(imgRec,"Imagem Reconstruida")
+    # adicionar linhas ou colunas = quociente -  resto
+    
+    
 if __name__ == "__main__":
     main()
