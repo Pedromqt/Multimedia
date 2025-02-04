@@ -21,19 +21,23 @@ def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    Grey = img[:,:,:]
+    Grey = img[:,:,0]
+    Grey = img[:,:,1]
+    Grey = img[:,:,2]
+
     showImg(R,"Red",cm_red)
     showImg(G,"Green",cm_green)
     showImg(B,"Blue",cm_blue)
     showImg(Grey,"Grey",cm_grey)
-    return R,G,B
+    return R,G,B,Grey
 
-def decoder(R,G,B):
+def decoder(R,G,B,Grey):
     nl,nc = R.shape # devolve numero de linhas e colunas
     imgRec = np.zeros((nl,nc,3),dtype=np.uint8)
     imgRec[:,:,0] = R
     imgRec[:,:,1] = G
     imgRec[:,:,2] = B
+
     return imgRec
 
 def main():
@@ -46,9 +50,9 @@ def main():
     cm_blue = clr.LinearSegmentedColormap.from_list("blue",[(0,0,0),(0,0,1)], N=256)
     cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
     
-    R,G,B = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
+    R,G,B,Grey = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
     ###############
-    imgRec = decoder(R,G,B)
+    imgRec = decoder(R,G,B,Grey)
     showImg(imgRec,"Imagem Reconstruida")
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
     
