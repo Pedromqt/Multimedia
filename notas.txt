@@ -6,4 +6,4 @@ padding -> matriz 32x32 e temos 70x90 -> o padding será o 32- 6(resto da divisa
 -> no descodificador de YCbCr para RBG utiliza-se a matriz inversa da primeira matriz , não a matriz que está nos slides
 -> np.linalg.inv, funcao para inverter
 
-->alinea 1-> duas palavras fundamnetais, taxa de compressão e qualidade subjetiva -> Mul-TP1.xlsx (excel)
+->alinea 1-> duas palavras fundamentais, taxa de compressão e qualidade subjetiva -> Mul-TP1.xlsx (excel)
