@@ -1,3 +1,7 @@
 Notas 
 
 padding -> matriz 32x32 e temos 70x90 -> o padding será o 32- 6(resto da divisao)=26
+
+-> alinea 5 -> codificador RBG para YCbCr é pra usar a matriz dos slides, nao usar as formulas 
+-> no descodificador de YCbCr para RBG utiliza-se a matriz inversa da primeira matriz , não a matriz que está nos slides
+-> np.linalg.inv, funcao para inverter
