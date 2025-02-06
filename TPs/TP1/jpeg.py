@@ -17,6 +17,9 @@ def showSubMatrix(img,i,j,dim):
     elif nd==3:
         print(img[i:i+dim,j:j+dim,0])
 
+##def add_padding():
+##COMPLETAR
+
 def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     R = img[:,:,0]
     G = img[:,:,1]
