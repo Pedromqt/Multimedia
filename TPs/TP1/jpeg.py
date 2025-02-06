@@ -41,7 +41,7 @@ def decoder(R,G,B,Grey):
     return imgRec
 
 def main():
-    fName = "./TP1/imagens/airport.bmp"
+    fName = "./imagens/airport.bmp"
     img = plt.imread(fName) 
     showImg(img,fName)
     
