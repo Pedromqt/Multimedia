@@ -32,7 +32,6 @@ def add_padding(img):
         last_column = img[:,-1:,:]
         array_add_nc = np.repeat(last_column,add_nc,axis=1)
         img = np.hstack((img,array_add_nc))
-        
     #print(img.shape)
     return img,add_nl,add_nc
     
@@ -41,23 +40,36 @@ def remove_padding(added_nl,added_nc,imgRec):
     imgRec = imgRec[0:nl_updated-added_nl,0:nc_updated-added_nc,:]
     return imgRec
 
+def YCbCr(img):
+    YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
+    YCbCr_matrix_2 = np.array([0, 128, 128])
+    nl,nc,_ = img.shape
+    for l in range(nl):
+        for c in range(nc):
+            rgb = img[l,c,:]
+            img[l,c,:] = np.dot(YCbCr_matrix,rgb) + YCbCr_matrix_2
+    Y = img[:,:,0]
+    Cb = img[:,:,1]
+    Cr = img[:,:,2]
+    return Y,Cb,Cr
+    
 def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     img,added_nl,added_nc = add_padding(img)
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    Grey = img[:,:,0]
-    Grey = img[:,:,1]
-    Grey = img[:,:,2]
-    
     showImg(img,"Imagem com padding")
     showImg(R,"Red",cm_red)
     showImg(G,"Green",cm_green)
-    showImg(B,"Blue",cm_blue)
-    showImg(Grey,"Grey",cm_grey)
-    return R,G,B,Grey,added_nl,added_nc
+    showImg(B,"Blue",cm_blue)   
+    
+    Y,Cb,Cr = YCbCr(img)
+    showImg(Y,"Y",cm_grey)
+    showImg(Cb,"Cb",cm_grey)
+    showImg(Cr,"Cr",cm_grey)
+    return R,G,B,added_nl,added_nc
 
-def decoder(R,G,B,Grey,added_nl,added_nc):
+def decoder(R,G,B,added_nl,added_nc):
     nl,nc = R.shape # devolve numero de linhas e colunas
     imgRec = np.zeros((nl,nc,3),dtype=np.uint8)
     imgRec[:,:,0] = R
@@ -77,9 +89,9 @@ def main():
     cm_blue = clr.LinearSegmentedColormap.from_list("blue",[(0,0,0),(0,0,1)], N=256)
     cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
     
-    R,G,B,Grey,added_nl,added_nc = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
+    R,G,B,added_nl,added_nc = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
     ###############
-    imgRec = decoder(R,G,B,Grey,added_nl,added_nc)
+    imgRec = decoder(R,G,B,added_nl,added_nc)
     showImg(imgRec,"Imagem Reconstruida / sem padding")
 
 if __name__ == "__main__":
