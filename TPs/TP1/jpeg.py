@@ -19,6 +19,7 @@ def showSubMatrix(img,i,j,dim):
 
 ##def add_padding():
 ##COMPLETAR
+# adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
 
 def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     R = img[:,:,0]
@@ -57,7 +58,7 @@ def main():
     ###############
     imgRec = decoder(R,G,B,Grey)
     showImg(imgRec,"Imagem Reconstruida")
-    # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
+
     
     
 if __name__ == "__main__":
