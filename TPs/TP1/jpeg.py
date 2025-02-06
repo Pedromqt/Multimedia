@@ -21,6 +21,8 @@ def showSubMatrix(img,i,j,dim):
 ##COMPLETAR
 # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
 
+##def remove_padding():
+
 def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     R = img[:,:,0]
     G = img[:,:,1]
