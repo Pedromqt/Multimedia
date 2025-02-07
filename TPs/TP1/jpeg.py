@@ -61,12 +61,19 @@ def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     showImg(img,"Imagem com padding")
     showImg(R,"Red",cm_red)
     showImg(G,"Green",cm_green)
-    showImg(B,"Blue",cm_blue)   
-    
+    showImg(B,"Blue",cm_blue) 
+    #print("Matriz R")  
+    #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
     showImg(Y,"Y",cm_grey)
     showImg(Cb,"Cb",cm_grey)
     showImg(Cr,"Cr",cm_grey)
+    #print("------------")
+    #print("Matriz Y")
+    #showSubMatrix(Y,8,8,8)
+    #print("------------")
+    #print("Matriz Cb")
+    #showSubMatrix(Cb,8,8,8)
     return R,G,B,added_nl,added_nc
 
 def decoder(R,G,B,added_nl,added_nc):
