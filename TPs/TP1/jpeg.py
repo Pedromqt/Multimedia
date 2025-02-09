@@ -104,7 +104,6 @@ def main():
     cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
     
     Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2 = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
-    ###############
     imgRec = decoder(Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2)
     showImg(imgRec,"Imagem Reconstruida / sem padding")
 
