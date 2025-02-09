@@ -12,8 +12,10 @@ def showImg(img,title,cmap=None):
 def showSubMatrix(img,i,j,dim):
     nd = img.ndim # numero de dimensoes da matriz
     if nd==2:
+        img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim])
     elif nd==3:
+        img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim,0])
 
 def add_padding(img):
