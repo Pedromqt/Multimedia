@@ -2,6 +2,16 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
 import cv2
+
+nl=675
+nc=1200
+YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
+YCbCr_matrix_2 = np.array([0, 128, 128])
+cm_red = clr.LinearSegmentedColormap.from_list("red",[(0,0,0),(1,0,0)], N=256)
+cm_green = clr.LinearSegmentedColormap.from_list("green",[(0,0,0),(0,1,0)], N=256)
+cm_blue = clr.LinearSegmentedColormap.from_list("blue",[(0,0,0),(0,0,1)], N=256)
+cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
+
 #resize img, none, escala h, escala v, (linear, nearest,cubico, area)
 def showImg(img,title,cmap=None):
     plt.figure()
@@ -42,33 +52,33 @@ def add_padding(img):
     #print(img.shape)
     return img,add_nl,add_nc
     
-def remove_padding(added_nl,added_nc,imgRec):
-    nl_updated,nc_updated,_ = imgRec.shape
-    imgRec = imgRec[0:nl_updated-added_nl,0:nc_updated-added_nc,:]
+def remove_padding(imgRec):
+    imgRec = imgRec[0:nl,0:nc,:]
     return imgRec
 
 def YCbCr(img):
     img = img.astype(np.float32)
-    YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
-    YCbCr_matrix_2 = np.array([0, 128, 128])
+    
+    
     img = np.dot(img, YCbCr_matrix.T) + YCbCr_matrix_2
     Y = img[:,:,0]
     Cb = img[:,:,1]
     Cr = img[:,:,2]
-    return Y,Cb,Cr,YCbCr_matrix,YCbCr_matrix_2
+    return Y,Cb,Cr
 
 # [Y Cb Cr] -> ao aplicar Transposta: [ Y  ]
 #                                     | Cb | 
 #                                     [ Cr ]
     
-def remove_YCbCr(img, YCbCr_matrix, YCbCr_matrix_2):
+def remove_YCbCr(img):
     img -= YCbCr_matrix_2
     remove_YCbCr_matrix = np.linalg.inv(YCbCr_matrix)
     img = np.dot(img, remove_YCbCr_matrix.T)
+    img = np.round(img)
     img = np.clip(img, 0, 255).astype(np.uint8)
     return img
 
-def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
+def encoder(img):
     img,added_nl,added_nc = add_padding(img)
     R = img[:,:,0]
     G = img[:,:,1]
@@ -79,7 +89,7 @@ def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     showImg(B,"Blue",cm_blue) 
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
-    Y,Cb,Cr,YCbCr_matrix,YCbCr_matrix_2 = YCbCr(img)
+    Y,Cb,Cr = YCbCr(img)
     showImg(Y,"Y",cm_grey)
     showImg(Cb,"Cb",cm_grey)
     showImg(Cr,"Cr",cm_grey)
@@ -92,27 +102,19 @@ def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2
-
-def decoder(Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2):
+    return Y,Cb,Cr
+def decoder(Y,Cb,Cr):
     imgRec = np.stack((Y, Cb, Cr), axis=-1)
-    imgRec = remove_YCbCr(imgRec, YCbCr_matrix, YCbCr_matrix_2)
-    imgRec = remove_padding(added_nl,added_nc,imgRec)
+    imgRec = remove_YCbCr(imgRec)
+    imgRec = remove_padding(imgRec)
     return imgRec
 
 def main():
     fName = "./imagens/airport.bmp"
     img = plt.imread(fName) 
-    # print(img.shape)
     showImg(img,fName)
-    
-    cm_red = clr.LinearSegmentedColormap.from_list("red",[(0,0,0),(1,0,0)], N=256)
-    cm_green = clr.LinearSegmentedColormap.from_list("green",[(0,0,0),(0,1,0)], N=256)
-    cm_blue = clr.LinearSegmentedColormap.from_list("blue",[(0,0,0),(0,0,1)], N=256)
-    cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
-    
-    Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2 = encoder(img,cm_red,cm_green,cm_blue,cm_grey)
-    imgRec = decoder(Y,Cb,Cr,added_nl,added_nc,YCbCr_matrix,YCbCr_matrix_2)
+    Y,Cb,Cr = encoder(img)
+    imgRec = decoder(Y,Cb,Cr)
     showImg(imgRec,"Imagem Reconstruida / sem padding")
 
 if __name__ == "__main__":
