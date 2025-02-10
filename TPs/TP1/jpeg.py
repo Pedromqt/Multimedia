@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
-
+import cv2
+#resize img, none, escala h, escala v, (linear, nearest,cubico, area)
 def showImg(img,title,cmap=None):
     plt.figure()
     plt.imshow(img,cmap)
@@ -17,6 +18,11 @@ def showSubMatrix(img,i,j,dim):
     elif nd==3:
         img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim,0])
+        
+def downsampling(Cb,Cr, fx, fy):
+    Cb = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Cr = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    return Cb, Cr
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
@@ -54,7 +60,7 @@ def YCbCr(img):
 def remove_YCbCr(img, YCbCr_matrix, YCbCr_matrix_2):
     img -= YCbCr_matrix_2
     remove_YCbCr_matrix = np.linalg.inv(YCbCr_matrix)
-    img = np.dot(img, remove_YCbCr_matrix.T) 
+    img = np.dot(img, remove_YCbCr_matrix.T)
     img = np.clip(img, 0, 255).astype(np.uint8)
     return img
 
@@ -73,6 +79,9 @@ def encoder(img,cm_red,cm_green,cm_blue,cm_grey):
     showImg(Y,"Y",cm_grey)
     showImg(Cb,"Cb",cm_grey)
     showImg(Cr,"Cr",cm_grey)
+    CbResize,CrResize = downsampling(Cb,Cr, 0.5, 1)
+    showImg(CbResize,"Cb downsampling 4:2:2",cm_grey)
+    showImg(CrResize,"Cr downsampling 4:2:2",cm_grey)
     #print("------------")
     #print("Matriz Y")
     #showSubMatrix(Y,8,8,8)
