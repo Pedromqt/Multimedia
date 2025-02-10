@@ -103,6 +103,7 @@ def encoder(img):
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
     return Y,Cb,Cr
+
 def decoder(Y,Cb,Cr):
     imgRec = np.stack((Y, Cb, Cr), axis=-1)
     imgRec = remove_YCbCr(imgRec)
