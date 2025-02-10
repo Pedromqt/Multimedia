@@ -7,3 +7,23 @@ Notas
 -> alinea 5 -> codificador RBG para YCbCr é pra usar a matriz dos slides, nao usar as formulas 
 -> no descodificador de YCbCr para RBG utiliza-se a matriz inversa da primeira matriz , não a matriz que está nos slides
 -> np.linalg.inv, funcao para inverter
+
+encoder: passos iniciais -> downsampling -> DCT
+
+decoder ->DCTi -> upsampling -> resto passos já feitos -> img reconstrida
+
+usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer clipping np.clip
+
+->alinea 6-> downsampling -> tranformar 4 pixeis em um p.ex atraves de uma média das cores(RGB) 
+-> Notaçao -> Y:Cr:Cb -> Y sempre 4, Cr 1, 2 ou 4 e Cb 0,1,2 ou 4 
+->4:2:2, para cada 4 pixeis Y na horizontal vamos manter apenas 2 para o canal Cr ficando 2:4 na horizontal e o mesmo para Cb ficando Cr e Cb a metade 
+-> 4:4:4 nao se fez nada , nao ha downsampling
+->4:2:0-> situacao especial, é igual nos dois nos dois canais e significa que o downsampling é tanto na horizontal como na vertical-> 4pixeis transforman-se em 1 , metade na vertical e na horizontal
+-> biblioteca cv2, funcao resize cv2.resize(img, none , fator escala horizontal, fator escala vertical, forma de interpolacao (linear, nearest, cubica))
+-> se fizermos varios tipos de interpolacao e compararmos temos pontos extra
+
+-> alinea 7 -> DCT -> DFT (transformada de fourier discreta)
+-> freq alta -> maior variacao -> transiçoes fortes da cor da imagem
+-> Vamos usar DCT (discrete cosine transforman), mesmo conceito que a DFT
+-> é mais especifica logo a DCT é mais eficiente e é a que vamos usar por ter mais propriedades de compressão
+-> no jpeg a DCT é aplicada em blocos 8x8 porque podemos garantir que há mais uniformidade e que contenha transiçoes suaves
