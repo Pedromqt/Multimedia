@@ -26,3 +26,4 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> freq alta -> maior variacao -> transiçoes fortes da cor da imagem
 -> Vamos usar DCT (discrete cosine transforman), mesmo conceito que a DFT
 -> é mais especifica logo a DCT é mais eficiente e é a que vamos usar por ter mais propriedades de compressão
+-> no jpeg a DCT é aplicada em blocos 8x8 porque podemos garantir que há mais uniformidade e que contenha transiçoes suaves
