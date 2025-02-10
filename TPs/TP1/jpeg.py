@@ -53,13 +53,10 @@ def YCbCr(img):
     
 def remove_YCbCr(img, YCbCr_matrix, YCbCr_matrix_2):
     img = img.astype(np.float32)
-    nl, nc, _ = img.shape
+    img -= YCbCr_matrix_2
+    img /= 255.0  
     remove_YCbCr_matrix = np.linalg.inv(YCbCr_matrix)
-    for l in range(nl):
-        for c in range(nc):
-            ycbcr = img[l, c, :] - YCbCr_matrix_2
-            rgb = np.dot(remove_YCbCr_matrix, ycbcr)
-            img[l, c, :] = rgb
+    img = np.dot(img, remove_YCbCr_matrix.T) * 255.0
     img = np.clip(img, 0, 255).astype(np.uint8)
     return img
 
