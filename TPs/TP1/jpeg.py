@@ -79,7 +79,7 @@ def remove_YCbCr(img):
     return img
 
 def encoder(img):
-    img,added_nl,added_nc = add_padding(img)
+    img = add_padding(img)
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
