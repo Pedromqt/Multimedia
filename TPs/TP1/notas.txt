@@ -7,3 +7,9 @@ Notas
 -> alinea 5 -> codificador RBG para YCbCr é pra usar a matriz dos slides, nao usar as formulas 
 -> no descodificador de YCbCr para RBG utiliza-se a matriz inversa da primeira matriz , não a matriz que está nos slides
 -> np.linalg.inv, funcao para inverter
+
+encoder: passos iniciais ->downsampling -> DCT
+
+decoder ->DCTi -> upsampling -> resto passos já feitos -> img reconstrida
+
+usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer clipping np.clip
