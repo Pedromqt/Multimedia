@@ -19,5 +19,10 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 ->4:2:2, para cada 4 pixeis Y na horizontal vamos manter apenas 2 para o canal Cr ficando 2:4 na horizontal e o mesmo para Cb ficando Cr e Cb a metade 
 -> 4:4:4 nao se fez nada , nao ha downsampling
 ->4:2:0-> situacao especial, é igual nos dois nos dois canais e significa que o downsampling é tanto na horizontal como na vertical-> 4pixeis transforman-se em 1 , metade na vertical e na horizontal
+-> biblioteca cv2, funcao resize cv2.resize(img, none , fator escala horizontal, fator escala vertical, forma de interpolacao (linear, nearest, cubica))
+-> se fizermos varios tipos de interpolacao e compararmos temos pontos extra
 
--> alinea 7 ->
+-> alinea 7 -> DCT -> DFT (transformada de fourier discreta)
+-> freq alta -> maior variacao -> transiçoes fortes da cor da imagem
+-> Vamos usar DCT (discrete cosine transforman), mesmo conceito que a DFT
+-> é mais especifica logo a DCT é mais eficiente e é a que vamos usar por ter mais propriedades de compressão
