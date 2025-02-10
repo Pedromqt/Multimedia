@@ -50,6 +50,10 @@ def YCbCr(img):
     Cb = img[:,:,1]
     Cr = img[:,:,2]
     return Y,Cb,Cr,YCbCr_matrix,YCbCr_matrix_2
+
+# [Y Cb Cr] -> ao aplicar Transposta: [ Y  ]
+#                                     | Cb | 
+#                                     [ Cr ]
     
 def remove_YCbCr(img, YCbCr_matrix, YCbCr_matrix_2):
     img -= YCbCr_matrix_2
