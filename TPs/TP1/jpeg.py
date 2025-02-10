@@ -50,7 +50,7 @@ def add_padding(img):
         array_add_nc = np.repeat(last_column,add_nc,axis=1)
         img = np.hstack((img,array_add_nc))
     #print(img.shape)
-    return img,add_nl,add_nc
+    return img
     
 def remove_padding(imgRec):
     imgRec = imgRec[0:nl,0:nc,:]
@@ -58,8 +58,6 @@ def remove_padding(imgRec):
 
 def YCbCr(img):
     img = img.astype(np.float32)
-    
-    
     img = np.dot(img, YCbCr_matrix.T) + YCbCr_matrix_2
     Y = img[:,:,0]
     Cb = img[:,:,1]
