@@ -3,8 +3,6 @@ import matplotlib.colors as clr
 import numpy as np
 import cv2
 
-nl=675
-nc=1200
 YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
 YCbCr_matrix_2 = np.array([0, 128, 128])
 cm_red = clr.LinearSegmentedColormap.from_list("red",[(0,0,0),(1,0,0)], N=256)
@@ -36,7 +34,6 @@ def downsampling(Cb,Cr, fx, fy):
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
-    nl,nc,_ = img.shape
     resto_nl = nl % 32
     resto_nc = nc % 32
     if(resto_nl != 0):
@@ -110,7 +107,9 @@ def decoder(Y,Cb,Cr):
 
 def main():
     fName = "./imagens/airport.bmp"
-    img = plt.imread(fName) 
+    img = plt.imread(fName)
+    global nl,nc
+    nl,nc,_= img.shape
     showImg(img,fName)
     Y,Cb,Cr = encoder(img)
     imgRec = decoder(Y,Cb,Cr)
