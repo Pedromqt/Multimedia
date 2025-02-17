@@ -51,3 +51,4 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> 701 x matriz de Quantizaçao -> 44 
 -> Vamos tentar reduzir a gama deste coeficientes (reduzir os bits necessarios)
 -> Calcular a difencao entre blocos consequtivos do DC - codificacao diferencial ou DPCM
+-> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> DPCM -> zig-zag -> REE -> Huffman
