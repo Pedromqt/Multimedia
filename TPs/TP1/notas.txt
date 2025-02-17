@@ -43,5 +43,11 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> Atencao, fazer clipping se > 255, =255 , se <1 =1
 -> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> ...
 -> decoder o inverso do que está acima -> imagem reconstruida
+-> matriz de Quantizaçao entre 1 e 255
+-> RGB entre 0 e 255
+-> Quando aplicamos Quantizaçao têm de originar inteiros
 
--> alinea 9 ->
+-> alinea 9 -> Tratar coefiente DC (canto superior esquerdo)
+-> 701 x matriz de Quantizaçao -> 44 
+-> Vamos tentar reduzir a gama deste coeficientes (reduzir os bits necessarios)
+-> Calcular a difencao entre blocos consequtivos do DC - codificacao diferencial ou DPCM
