@@ -33,13 +33,13 @@ def downsampling(Y,Cb,Cr, fx, fy):
     Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     return  Y_d, Cb_d, Cr_d
 
-def upsampling(imgRec):
-    Y = imgRec[0]
-    Cb = imgRec[1]
-    Cr = imgRec[2]
-    imgRec[0] = cv2.resize(Y,None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    imgRec[1] = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    imgRec[2] = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+def upsampling(imgRec,fx,fy):
+    Y = imgRec[:,:,0]
+    Cb = imgRec[:,:,1]
+    Cr = imgRec[:,:,2]
+    imgRec[:,:,0] = cv2.resize(Y,None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    imgRec[:,:,1] = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    imgRec[:,:,2] = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
     return imgRec
 
 def add_padding(img):
@@ -88,16 +88,16 @@ def encoder(img):
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    showImg(img,"Imagem com padding")
-    showImg(R,"Red",cm_red)
-    showImg(G,"Green",cm_green)
-    showImg(B,"Blue",cm_blue) 
+    #showImg(img,"Imagem com padding")
+    #showImg(R,"Red",cm_red)
+    #showImg(G,"Green",cm_green)
+    #showImg(B,"Blue",cm_blue) 
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
-    showImg(Y,"Y",cm_grey)
-    showImg(Cb,"Cb",cm_grey)
-    showImg(Cr,"Cr",cm_grey)
+    #showImg(Y,"Y",cm_grey)
+    #showImg(Cb,"Cb",cm_grey)
+    #showImg(Cr,"Cr",cm_grey)
     global fx
     global fy
     fx = 0.5
@@ -122,9 +122,9 @@ def encoder(img):
 
 def decoder(Y,Cb,Cr):
     imgRec = np.stack((Y, Cb, Cr), axis=-1)
+    imgRec = upsampling(imgRec,0.5,1)
     imgRec = remove_YCbCr(imgRec)
     imgRec = remove_padding(imgRec)
-    imgRec = upsampling(imgRec)
     return imgRec
 
 def main():
