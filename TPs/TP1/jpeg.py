@@ -27,10 +27,11 @@ def showSubMatrix(img,i,j,dim):
         img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim,0])
         
-def downsampling(Cb,Cr, fx, fy):
-    Cb = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
-    Cr = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
-    return Cb, Cr
+def downsampling(Y,Cb,Cr, fx, fy):
+    Y_d = cv2.resize(Y,None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    return  Y_d, Cb_d, Cr_d
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
@@ -88,9 +89,16 @@ def encoder(img):
     showImg(Y,"Y",cm_grey)
     showImg(Cb,"Cb",cm_grey)
     showImg(Cr,"Cr",cm_grey)
-    CbResize,CrResize = downsampling(Cb,Cr, 0.5, 1)
-    showImg(CbResize,"Cb downsampling 4:2:2",cm_grey)
-    showImg(CrResize,"Cr downsampling 4:2:2",cm_grey)
+    Y422,Cb422,Cr422 = downsampling(Y,Cb,Cr, 0.5, 1)
+    showImg(Y422,"Y downsampling 4:2:2",cm_grey)
+    showImg(Cb422,"Cb downsampling 4:2:2",cm_grey)
+    showImg(Cr422,"Cr downsampling 4:2:2",cm_grey)
+    
+    
+    Y420,Cb420,Cr420 = downsampling(Y,Cb,Cr, 0.5, 0.5)
+    showImg(Y420,"Y downsampling 4:2:0",cm_grey)
+    showImg(Cb420,"Cb downsampling 4:2:0",cm_grey)
+    showImg(Cr420,"Cr downsampling 4:2:0",cm_grey)
     #print("------------")
     #print("Matriz Y")
     #showSubMatrix(Y,8,8,8)
