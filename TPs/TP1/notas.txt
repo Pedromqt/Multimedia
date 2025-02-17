@@ -16,9 +16,9 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 
 ->alinea 6-> downsampling -> tranformar 4 pixeis em um p.ex atraves de uma média das cores(RGB) 
 -> Notaçao -> Y:Cr:Cb -> Y sempre 4, Cr 1, 2 ou 4 e Cb 0,1,2 ou 4 
-->4:2:2, para cada 4 pixeis Y na horizontal vamos manter apenas 2 para o canal Cr ficando 2:4 na horizontal e o mesmo para Cb ficando Cr e Cb a metade 
+-> 4:2:2, para cada 4 pixeis Y na horizontal vamos manter apenas 2 para o canal Cr ficando 2:4 na horizontal e o mesmo para Cb ficando Cr e Cb a metade 
 -> 4:4:4 nao se fez nada , nao ha downsampling
-->4:2:0-> situacao especial, é igual nos dois nos dois canais e significa que o downsampling é tanto na horizontal como na vertical-> 4pixeis transforman-se em 1 , metade na vertical e na horizontal
+-> 4:2:0-> situacao especial, é igual nos dois nos dois canais e significa que o downsampling é tanto na horizontal como na vertical-> 4pixeis transforman-se em 1 , metade na vertical e na horizontal
 -> biblioteca cv2, funcao resize cv2.resize(img, none , fator escala horizontal, fator escala vertical, forma de interpolacao (linear, nearest, cubica))
 -> se fizermos varios tipos de interpolacao e compararmos temos pontos extra
 
@@ -51,4 +51,4 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> 701 x matriz de Quantizaçao -> 44 
 -> Vamos tentar reduzir a gama deste coeficientes (reduzir os bits necessarios)
 -> Calcular a difencao entre blocos consequtivos do DC - codificacao diferencial ou DPCM
--> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> DPCM -> zig-zag -> REE -> Huffman
+-> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> DPCM -> zig-zag -> RLE -> Huffman
