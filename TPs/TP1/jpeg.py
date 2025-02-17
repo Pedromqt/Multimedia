@@ -28,18 +28,18 @@ def showSubMatrix(img,i,j,dim):
         print(img[i:i+dim,j:j+dim,0])
         
 def downsampling(Y,Cb,Cr, fx, fy):
-    Y_d = cv2.resize(Y,None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Y_d = Y
     Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     return  Y_d, Cb_d, Cr_d
 
 def upsampling(imgRec):
-    Y = imgRec[0]
-    Cb = imgRec[1]
-    Cr = imgRec[2]
-    imgRec[0] = cv2.resize(Y,None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    imgRec[1] = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    imgRec[2] = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    Y = imgRec[:,:,0]
+    Cb = imgRec[:,:,1]
+    Cr = imgRec[:,:,2]
+    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    imRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
 def add_padding(img):
@@ -122,9 +122,9 @@ def encoder(img):
 
 def decoder(Y,Cb,Cr):
     imgRec = np.stack((Y, Cb, Cr), axis=-1)
+    imgRec = upsampling(imgRec)
     imgRec = remove_YCbCr(imgRec)
     imgRec = remove_padding(imgRec)
-    imgRec = upsampling(imgRec)
     return imgRec
 
 def main():
