@@ -88,16 +88,16 @@ def encoder(img):
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    showImg(img,"Imagem com padding")
-    showImg(R,"Red",cm_red)
-    showImg(G,"Green",cm_green)
-    showImg(B,"Blue",cm_blue) 
+    #showImg(img,"Imagem com padding")
+    #showImg(R,"Red",cm_red)
+    #showImg(G,"Green",cm_green)
+    #showImg(B,"Blue",cm_blue) 
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
-    showImg(Y,"Y",cm_grey)
-    showImg(Cb,"Cb",cm_grey)
-    showImg(Cr,"Cr",cm_grey)
+    #showImg(Y,"Y",cm_grey)
+    #showImg(Cb,"Cb",cm_grey)
+    #showImg(Cr,"Cr",cm_grey)
     global fx
     global fy
     fx = 0.5
