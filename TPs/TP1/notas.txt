@@ -27,3 +27,21 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> Vamos usar DCT (discrete cosine transforman), mesmo conceito que a DFT
 -> é mais especifica logo a DCT é mais eficiente e é a que vamos usar por ter mais propriedades de compressão
 -> no jpeg a DCT é aplicada em blocos 8x8 porque podemos garantir que há mais uniformidade e que contenha transiçoes suaves
+
+
+-> alinea 8 -> Quantizaçao
+-> Coeficiente DC no canto superior esquerdo, proporiconal à media , média x constante = DC
+-> coeficientes AC no canto inferior direito
+-> Imagem bastante suave logo nao tem energia nas altas frequencias
+-> olho humano mais sensivel a baixas frequencias
+-> menos bits para os coeficientes de alta frequencias
+-> dividir pelas matrizes de Quantizaçao(slides)
+-> no decoder fazemos a multiplicação obviamente
+-> vamos notar que há diferencas em relacao à original
+-> erros bastante grandes na imagem abrupta reconstruida
+-> Fator de qualidade vai definir um fator de escala para as matrizes de Quantizaçao (formulas dos slides)
+-> Atencao, fazer clipping se > 255, =255 , se <1 =1
+-> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> ...
+-> decoder o inverso do que está acima -> imagem reconstruida
+
+-> alinea 9 ->
