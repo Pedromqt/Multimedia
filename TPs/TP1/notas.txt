@@ -51,4 +51,5 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 -> 701 x matriz de Quantizaçao -> 44 
 -> Vamos tentar reduzir a gama deste coeficientes (reduzir os bits necessarios)
 -> Calcular a difencao entre blocos consequtivos do DC, Diferenciacao entre os coeficientes DC dos blocos e não dos pixeis dentro do bloco - codificacao diferencial ou DPCM
--> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> DPCM -> zig-zag -> RLE -> Huffman
+-> A codificacao dos coeficientes AC é feita em zig zag, passamos de bidimensional para unidimensional
+-> padding -> dividir RGB -> YCbCr -> Downsampling -> DCT 8x8 -> Quantizaçao -> DPCM -> zig-zag -> RLE(apaga os zeros resultantes do zig zag) -> Huffman
