@@ -35,13 +35,10 @@ def downsampling(Y,Cb,Cr, fx, fy):
     Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     return  Y_d, Cb_d, Cr_d
 
-def upsampling(imgRec):
-    Y = imgRec[:,:,0]
-    Cb = imgRec[:,:,1]
-    Cr = imgRec[:,:,2]
+def upsampling(Y,Cb,Cr):
     Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
     Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    imRec = np.stack((Y,Cb2,Cr2), axis = -1)
+    imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
 def dct_calc(Y):
@@ -112,12 +109,17 @@ def encoder(img):
     global fx
     global fy
     fx = 0.5
-    fy = 1
+    fy = 0.5
     Y,Cb,Cr = downsampling(Y,Cb,Cr, fx, fy)
-    showImg(Y,"Y downsampling 4:2:2",cm_grey)
-    showImg(Cb,"Cb downsampling 4:2:2",cm_grey)
-    showImg(Cr,"Cr downsampling 4:2:2",cm_grey)
-    
+    showImg(Y,"Y downsampling 4:2:0",cm_grey)
+    showImg(Cb,"Cb downsampling 4:2:0",cm_grey)
+    showImg(Cr,"Cr downsampling 4:2:0",cm_grey)
+    fx = 0.5
+    fy = 1
+    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr, fx, fy)
+    showImg(Y2,"Y downsampling 4:2:2",cm_grey)
+    showImg(Cb2,"Cb downsampling 4:2:2",cm_grey)
+    showImg(Cr2,"Cr downsampling 4:2:2",cm_grey)
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     #showImg(Y,"Y downsampling 4:2:0",cm_grey)
@@ -132,10 +134,9 @@ def encoder(img):
     return Y,Cb,Cr
 
 def decoder(Y,Cb,Cr):
-    imgRec = np.stack((Y, Cb, Cr), axis=-1)
-    imgRec = upsampling(imgRec)
-    imgRec = remove_YCbCr(imgRec)
+    imgRec = upsampling(Y,Cb,Cr)
     imgRec = remove_padding(imgRec)
+    imgRec = remove_YCbCr(imgRec)
     return imgRec
 
 def main():
