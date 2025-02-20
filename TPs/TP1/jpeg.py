@@ -31,21 +31,28 @@ def showSubMatrix(img,i,j,dim):
         
 def downsampling(Y,Cb,Cr, fx, fy):
     Y_d = Y
-    Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
-    Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
+    Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     return  Y_d, Cb_d, Cr_d
 
 def upsampling(Y,Cb,Cr):
-    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_AREA)
+    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_AREA)
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
-def dct_calc(Y):
-    scipy.fftpack.dct(Y)
-    return Y
+def dct_calc(Y,Cb,Cr):
+    Y_dct = scipy.fftpack.dct(Y, norm="ortho").T
+    Cb_dct = scipy.fftpack.dct(Cb, norm="ortho").T
+    Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr, norm="ortho").T, norm="ortho").T
+    showSubMatrix(Cb,8,8,8)
+    showImg(Y_dct,"hhhhh")
+    showImg(Cb_dct,"hhhhh11",cm_grey)
+    showImg(Cr_dct,"hhhhh22",cm_grey)
 
-def dct_inv(Y):
+    return Y_dct, Cb_dct, Cr_dct
+
+def dct_inv(Y,Cb,Cr):
     scipy.fftpack.idct(Y)
     return Y
 
@@ -110,16 +117,18 @@ def encoder(img):
     global fy
     fx = 0.5
     fy = 0.5
-    Y,Cb,Cr = downsampling(Y,Cb,Cr, fx, fy)
-    showImg(Y,"Y downsampling 4:2:0",cm_grey)
-    showImg(Cb,"Cb downsampling 4:2:0",cm_grey)
-    showImg(Cr,"Cr downsampling 4:2:0",cm_grey)
+    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr, fx, fy)
+    showImg(Y2,"Y downsampling 4:2:0",cm_grey)
+    showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
+    showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
-    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr, fx, fy)
-    showImg(Y2,"Y downsampling 4:2:2",cm_grey)
-    showImg(Cb2,"Cb downsampling 4:2:2",cm_grey)
-    showImg(Cr2,"Cr downsampling 4:2:2",cm_grey)
+    Y,Cb,Cr = downsampling(Y,Cb,Cr, fx, fy)
+    showImg(Y,"Y downsampling 4:2:2",cm_grey)
+    showImg(Cb,"Cb downsampling 4:2:2",cm_grey)
+    showImg(Cr,"Cr downsampling 4:2:2",cm_grey)
+
+    dct_calc(Y,Cb,Cr)
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     #showImg(Y,"Y downsampling 4:2:0",cm_grey)
