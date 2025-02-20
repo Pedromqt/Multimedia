@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
 import cv2
+import scipy
+import scipy.fftpack
 
 YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
 YCbCr_matrix_2 = np.array([0, 128, 128])
@@ -41,6 +43,15 @@ def upsampling(imgRec):
     Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
     imRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
+
+def dct_calc(Y):
+    scipy.fftpack.dct(Y)
+    return Y
+
+def dct_inv(Y):
+    scipy.fftpack.idct(Y)
+    return Y
+
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
