@@ -70,10 +70,21 @@ def upsampling(Y,Cb,Cr):
 
 import numpy as np
 
-def dct_quantize(Y_dct, Cb_dct, Cr_dct):
+def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
+    global QY,QCbCr
     h, w = Y_dct.shape
     h_c, w_c = Cb_dct.shape  # Cb e Cr têm largura reduzida
-
+    if(Qualidade >= 50):
+        FatorEscala = (100-Qualidade)/50
+    else:
+        FatorEscala = 50/Qualidade
+    if(FatorEscala == 0):
+        QY = np.ones(8,8)
+        QCbCr = np.ones(8,8)
+    else:
+        QY = np.round(QY*FatorEscala).astype(np.int32)
+        QCbCr = np.round(QCbCr*FatorEscala).astype(np.int32)
+    
     assert h % 8 == 0 and w % 8 == 0, "Dimensões de Y devem ser múltiplas de 8!"
     assert h_c % 8 == 0 and w_c % 8 == 0, "Dimensões de Cb/Cr devem ser múltiplas de 8!"
 
@@ -95,7 +106,8 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct):
     Crb_Q = Crb_Q.reshape(h_c, w_c)
     
     showSubMatrix(Yb_Q, 8, 8, 8)
-
+    showSubMatrix(QY, 8, 8, 8)
+    
     showImgLog(Yb_Q, "Yb_Q", cm_grey)
     showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
     showImgLog(Crb_Q, "Crb_Q", cm_grey)
@@ -227,7 +239,7 @@ def encoder(img):
 
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8)
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
     
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
