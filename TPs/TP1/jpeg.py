@@ -109,9 +109,20 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
 
 
 def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
-    Y_dct = Yb_dct * QY
-    Cb_dct = Cbb_dct * QCbCr
-    Cr_dct = Crb_dct * QCbCr
+    h, w = Yb_dct.shape
+    h_c, w_c = Cbb_dct.shape
+    
+    Yb_dct_reshaped = Yb_dct.reshape(h // 8, 8, w // 8, 8)
+    Cbb_dct_reshaped = Cbb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
+    Crb_dct_reshaped = Crb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
+
+    Y_dct = np.round(Yb_dct_reshaped * QY[np.newaxis, :, np.newaxis, :]).astype(np.int32)
+    Cb_dct = np.round(Cbb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
+    Cr_dct = np.round(Crb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
+    
+    Y_dct = Y_dct.reshape(h, w)
+    Cb_dct = Cb_dct.reshape(h_c, w_c)
+    Cr_dct = Cr_dct.reshape(h_c, w_c)
     return Y_dct, Cb_dct, Cr_dct
 
 def dct_inv_blocks(channel_dct,number_blocks):
@@ -232,7 +243,7 @@ def encoder(img):
 
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 100)
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
     
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
@@ -245,9 +256,10 @@ def encoder(img):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Y_dct8, Cb_dct8, Cr_dct8
+    return Yb_Q, Cbb_Q, Crb_Q
 
 def decoder(Y, Cb, Cr):
+    Y, Cb, Cr = dct_dequantize(Y, Cb, Cr)
     Y_d, Cb_d, Cr_d = dct_inv8(Y, Cb, Cr)
     imgRec = upsampling(Y_d, Cb_d, Cr_d)
     imgRec = remove_padding(imgRec)
