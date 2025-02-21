@@ -213,9 +213,9 @@ def encoder(img):
     #showSubMatrix(Cb,8,8,8)
     return Y_dct, Cb_dct, Cr_dct
 
-def decoder(Y,Cb,Cr):
-    imgRec = dct_inv(Y,Cb,Cr)
-    imgRec = upsampling(Y,Cb,Cr)
+def decoder(Y, Cb, Cr):
+    Y_d, Cb_d, Cr_d = dct_inv(Y, Cb, Cr)
+    imgRec = upsampling(Y_d, Cb_d, Cr_d)
     imgRec = remove_padding(imgRec)
     imgRec = remove_YCbCr(imgRec)
     return imgRec
@@ -228,7 +228,7 @@ def main():
     showImg(img,fName)
     Y,Cb,Cr = encoder(img)
     imgRec = decoder(Y,Cb,Cr)
-    showImg(imgRec,"Imagem Reconstruida / sem padding")
+    showImg(imgRec,"Imagem Reconstruida")
 
 if __name__ == "__main__":
     main()
