@@ -84,12 +84,36 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     Cr_dct = Crb_dct * QCbCr
     return Y_dct, Cb_dct, Cr_dct
 
-def dct_calc(Y, Cb, Cr):
-    Y_dct = scipy.fftpack.dct(scipy.fftpack.dct(Y, norm="ortho").T, norm="ortho").T
-    Cb_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cb, norm="ortho").T, norm="ortho").T
-    Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr, norm="ortho").T, norm="ortho").T
+def dct_inv_blocks(channel_dct,number_blocks):
+    h, w = channel_dct.shape
+    channel_dct_blocks = channel_dct.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
+    channel_idct = scipy.fftpack.idct(scipy.fftpack.idct(channel_dct_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
+    return channel_idct.transpose(0, 2, 1, 3).reshape(h, w)
+
+def dct_calc_blocks(channel,number_blocks):
+    h, w = channel.shape
+    channel_blocks = channel.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
+    channel_dct = scipy.fftpack.dct(scipy.fftpack.dct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
+    return channel_dct.transpose(0, 2, 1, 3).reshape(h, w) 
+
+def dct_calc8(Y_d,Cb_d,Cr_d): 
+    Y_dct8 = dct_calc_blocks(Y_d,8)
+    Cb_dct8 = dct_calc_blocks(Cb_d,8)
+    Cr_dct8 = dct_calc_blocks(Cr_d,8)
+    return Y_dct8, Cb_dct8, Cr_dct8
+
+def dct_inv8(Y_dct8,Cb_dct8,Cr_dct8):
+    Y_d = dct_inv_blocks(Y_dct8,8)
+    Cb_d = dct_inv_blocks(Cb_dct8,8)
+    Cr_d = dct_inv_blocks(Cr_dct8,8)
+    return Y_d, Cb_d, Cr_d
+
+def dct_calc(Y_d, Cb_d, Cr_d):
+    Y_dct = scipy.fftpack.dct(scipy.fftpack.dct(Y_d, norm="ortho").T, norm="ortho").T
+    Cb_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cb_d, norm="ortho").T, norm="ortho").T
+    Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr_d, norm="ortho").T, norm="ortho").T
     
-    showSubMatrix(Cb, 8, 8, 8)
+    showSubMatrix(Cb_d, 8, 8, 8)
     showImgLog(Y_dct, "Y_DCT", cm_grey)
     showImgLog(Cb_dct, "Cb_DCT", cm_grey)
     showImgLog(Cr_dct, "Cr_DCT", cm_grey)
@@ -97,10 +121,10 @@ def dct_calc(Y, Cb, Cr):
 
 
 def dct_inv(Y_dct, Cb_dct, Cr_dct):
-    Y = scipy.fftpack.idct(scipy.fftpack.idct(Y_dct.T, norm="ortho").T, norm="ortho")
-    Cb = scipy.fftpack.idct(scipy.fftpack.idct(Cb_dct.T, norm="ortho").T, norm="ortho")
-    Cr = scipy.fftpack.idct(scipy.fftpack.idct(Cr_dct.T, norm="ortho").T, norm="ortho")
-    return Y, Cb, Cr
+    Y_d = scipy.fftpack.idct(scipy.fftpack.idct(Y_dct.T, norm="ortho").T, norm="ortho")
+    Cb_d = scipy.fftpack.idct(scipy.fftpack.idct(Cb_dct.T, norm="ortho").T, norm="ortho")
+    Cr_d = scipy.fftpack.idct(scipy.fftpack.idct(Cr_dct.T, norm="ortho").T, norm="ortho")
+    return Y_d, Cb_d, Cr_d
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
@@ -168,13 +192,13 @@ def encoder(img):
     showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
-    Y,Cb,Cr = downsampling(Y,Cb,Cr, fx, fy)
-    showImg(Y,"Y downsampling 4:2:2",cm_grey)
-    showImg(Cb,"Cb downsampling 4:2:2",cm_grey)
-    showImg(Cr,"Cr downsampling 4:2:2",cm_grey)
+    Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr, fx, fy)
+    showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
+    showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
+    showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
 
-    Y_dct, Cb_dct, Cr_dct = dct_calc(Y,Cb,Cr)
-    Yb_dct, Cbb_dct, Crb_dct = dct_quantize(Y_dct,Cb_dct,Cr_dct)
+    Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
+    # Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
@@ -187,7 +211,7 @@ def encoder(img):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Yb_dct, Cbb_dct, Crb_dct
+    return Y_dct, Cb_dct, Cr_dct
 
 def decoder(Y,Cb,Cr):
     imgRec = dct_inv(Y,Cb,Cr)
