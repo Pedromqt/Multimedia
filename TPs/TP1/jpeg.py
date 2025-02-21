@@ -20,6 +20,13 @@ def showImg(img,title,cmap=None):
     plt.title(title)
     plt.show()
 
+def showImgLog(img, title, cmap=None):
+    img_log = np.log(np.abs(img) + 0.0001)
+    plt.imshow(img_log, cmap)
+    plt.title(title)
+    plt.axis("off")
+    plt.show()
+
 def showSubMatrix(img,i,j,dim):
     nd = img.ndim # numero de dimensoes da matriz
     if nd==2:
@@ -48,15 +55,9 @@ def dct_calc(Y, Cb, Cr):
     Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr, norm="ortho").T, norm="ortho").T
 
     showSubMatrix(Cb, 8, 8, 8)
-    Y_dct = np.round(Y_dct)
-    Y_dct = np.clip(Y_dct, 0, 255).astype(np.uint8)
-    Cb_dct = np.round(Cb_dct)
-    Cb_dct = np.clip(Cb_dct, 0, 255).astype(np.uint8)
-    Cr_dct = np.round(Cr_dct)
-    Cr_dct = np.clip(Cr_dct, 0, 255).astype(np.uint8)
-    showImg(Y_dct, "hhhhh", cm_grey)
-    showImg(Cb_dct, "hhhhh11", cm_grey)
-    showImg(Cr_dct, "hhhhh22", cm_grey)
+    showImgLog(Y_dct, "Y_DCT", cm_grey)
+    showImgLog(Cb_dct, "Cb_DCT", cm_grey)
+    showImgLog(Cr_dct, "Cr_DCT", cm_grey)
 
     return Y_dct, Cb_dct, Cr_dct
 
