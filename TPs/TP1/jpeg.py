@@ -100,6 +100,9 @@ def dct_calc8(Y_d,Cb_d,Cr_d):
     Y_dct8 = dct_calc_blocks(Y_d,8)
     Cb_dct8 = dct_calc_blocks(Cb_d,8)
     Cr_dct8 = dct_calc_blocks(Cr_d,8)
+    showImgLog(Y_dct8, "Yb_DCT", cm_grey)
+    showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
+    showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     return Y_dct8, Cb_dct8, Cr_dct8
 
 def dct_inv8(Y_dct8,Cb_dct8,Cr_dct8):
@@ -198,7 +201,7 @@ def encoder(img):
     showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
 
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
-    # Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
+    Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
@@ -211,10 +214,10 @@ def encoder(img):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Y_dct, Cb_dct, Cr_dct
+    return Y_dct8, Cb_dct8, Cr_dct8
 
 def decoder(Y, Cb, Cr):
-    Y_d, Cb_d, Cr_d = dct_inv(Y, Cb, Cr)
+    Y_d, Cb_d, Cr_d = dct_inv8(Y, Cb, Cr)
     imgRec = upsampling(Y_d, Cb_d, Cr_d)
     imgRec = remove_padding(imgRec)
     imgRec = remove_YCbCr(imgRec)
