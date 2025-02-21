@@ -73,30 +73,23 @@ import numpy as np
 def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     global QY,QCbCr
     h, w = Y_dct.shape
-    h_c, w_c = Cb_dct.shape  # Cb e Cr têm largura reduzida
+    h_c, w_c = Cb_dct.shape
     if(Qualidade >= 50):
         FatorEscala = (100-Qualidade)/50
     else:
         FatorEscala = 50/Qualidade
     if(FatorEscala == 0):
-        QY = np.ones(8,8)
-        QCbCr = np.ones(8,8)
+        QY = np.ones((8,8))
+        QCbCr = np.ones((8,8))
     else:
         QY = np.round(QY*FatorEscala).astype(np.int32)
         QCbCr = np.round(QCbCr*FatorEscala).astype(np.int32)
-    
-    assert h % 8 == 0 and w % 8 == 0, "Dimensões de Y devem ser múltiplas de 8!"
-    assert h_c % 8 == 0 and w_c % 8 == 0, "Dimensões de Cb/Cr devem ser múltiplas de 8!"
 
-    # Y tem a resolução completa
     Y_dct_reshaped = Y_dct.reshape(h // 8, 8, w // 8, 8)
 
-    # Cb e Cr têm largura reduzida, então usamos w_c em vez de w
     Cb_dct_reshaped = Cb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
     Cr_dct_reshaped = Cr_dct.reshape(h_c // 8, 8, w_c // 8, 8)
 
-
-    # Aplica a quantização usando broadcasting
     Yb_Q = np.round(Y_dct_reshaped / QY[np.newaxis, :, np.newaxis, :]).astype(np.int32)
     Cbb_Q = np.round(Cb_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
     Crb_Q = np.round(Cr_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
@@ -239,7 +232,7 @@ def encoder(img):
 
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 100)
     
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
