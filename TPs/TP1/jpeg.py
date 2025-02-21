@@ -41,20 +41,33 @@ def upsampling(Y,Cb,Cr):
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
-def dct_calc(Y,Cb,Cr):
-    Y_dct = scipy.fftpack.dct(Y, norm="ortho").T
-    Cb_dct = scipy.fftpack.dct(Cb, norm="ortho").T
+
+def dct_calc(Y, Cb, Cr):
+    Y_dct = scipy.fftpack.dct(scipy.fftpack.dct(Y, norm="ortho").T, norm="ortho").T
+    Cb_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cb, norm="ortho").T, norm="ortho").T
     Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr, norm="ortho").T, norm="ortho").T
-    showSubMatrix(Cb,8,8,8)
-    showImg(Y_dct,"hhhhh")
-    showImg(Cb_dct,"hhhhh11",cm_grey)
-    showImg(Cr_dct,"hhhhh22",cm_grey)
+
+    showSubMatrix(Cb, 8, 8, 8)
+    Y_dct = np.round(Y_dct)
+    Y_dct = np.clip(Y_dct, 0, 255).astype(np.uint8)
+    Cb_dct = np.round(Cb_dct)
+    Cb_dct = np.clip(Cb_dct, 0, 255).astype(np.uint8)
+    Cr_dct = np.round(Cr_dct)
+    Cr_dct = np.clip(Cr_dct, 0, 255).astype(np.uint8)
+    showImg(Y_dct, "hhhhh", cm_grey)
+    showImg(Cb_dct, "hhhhh11", cm_grey)
+    showImg(Cr_dct, "hhhhh22", cm_grey)
 
     return Y_dct, Cb_dct, Cr_dct
 
-def dct_inv(Y,Cb,Cr):
-    scipy.fftpack.idct(Y)
-    return Y
+
+def dct_inv(Y_dct, Cb_dct, Cr_dct):
+    Y = scipy.fftpack.idct(scipy.fftpack.idct(Y_dct.T, norm="ortho").T, norm="ortho")
+    Cb = scipy.fftpack.idct(scipy.fftpack.idct(Cb_dct.T, norm="ortho").T, norm="ortho")
+    Cr = scipy.fftpack.idct(scipy.fftpack.idct(Cr_dct.T, norm="ortho").T, norm="ortho")
+
+    return Y, Cb, Cr
+
 
 
 def add_padding(img):
