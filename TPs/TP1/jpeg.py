@@ -69,6 +69,55 @@ def upsampling(Y,Cb,Cr):
     return imgRec
 
 import numpy as np
+def dpcm_encode(Y_Q, Cb_Q, Cr_Q):
+    Y_Q_blocks = Y_Q.reshape(-1, 8, 8)
+    Y_Q_dc_values = Y_Q_blocks[:, 0, 0]
+    Y_Q_dpcm_values = np.diff(Y_Q_dc_values, prepend=Y_Q_dc_values[0])
+    Y_Q_blocks[:, 0, 0] = Y_Q_dpcm_values
+    
+    Cb_Q_blocks = Cb_Q.reshape(-1, 8, 8)
+    Cb_Q_dc_values = Cb_Q_blocks[:, 0, 0]
+    Cb_Q_dpcm_values = np.diff(Cb_Q_dc_values, prepend=Cb_Q_dc_values[0])
+    Cb_Q_blocks[:, 0, 0] = Cb_Q_dc_values
+    
+    Cr_Q_blocks = Cr_Q.reshape(-1, 8, 8)
+    Cr_Q_dc_values = Cr_Q_blocks[:, 0, 0]
+    Cr_Q_dpcm_values = np.diff(Cr_Q_dc_values, prepend=Cr_Q_dc_values[0]) 
+    Cr_Q_blocks[:, 0, 0] = Cr_Q_dc_values
+
+    Yb_DPCM =  Y_Q_blocks.reshape(Y_Q.shape)
+    Cbb_DPCM = Cb_Q_blocks.reshape(Cb_Q.shape)
+    Crb_DPCM = Cr_Q_blocks.reshape(Cr_Q.shape)
+    
+    showSubMatrix(Crb_DPCM, 8, 8, 8)
+    
+    showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
+    showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
+    showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
+
+    return Yb_DPCM, Cbb_DPCM, Crb_DPCM
+
+def dpcm_decode(Yb_DPCM, Cbb_DPCM, Crb_DPCM):
+    Yb_DPCM_blocks = Yb_DPCM.reshape(-1, 8, 8)
+    Yb_DPCM_dc_values = Yb_DPCM_blocks[:, 0, 0]
+    Yb_DPCM_dpcm_values = np.cumsum(Yb_DPCM_dc_values)
+    Yb_DPCM_blocks[:, 0, 0] = Yb_DPCM_dpcm_values
+    
+    Cbb_DPCM_blocks = Cbb_DPCM.reshape(-1, 8, 8)
+    Cbb_DPCM_dc_values = Cbb_DPCM_blocks[:, 0, 0]
+    Cbb_DPCM_dpcm_values = np.cumsum(Cbb_DPCM_dc_values)
+    Cbb_DPCM_blocks[:, 0, 0] = Cbb_DPCM_dc_values
+    
+    Crb_DPCM_blocks = Crb_DPCM.reshape(-1, 8, 8)
+    Crb_DPCM_dc_values = Crb_DPCM_blocks[:, 0, 0]
+    Crb_DPCM_dpcm_values = np.cumsum(Crb_DPCM_dc_values) 
+    Crb_DPCM_blocks[:, 0, 0] = Crb_DPCM_dc_values
+
+    Yb_Q =  Yb_DPCM_blocks.reshape(Yb_DPCM.shape)
+    Cbb_Q = Cbb_DPCM_blocks.reshape(Cbb_DPCM.shape)
+    Crb_Q = Crb_DPCM_blocks.reshape(Crb_DPCM.shape)
+
+    return Yb_Q, Cbb_Q, Crb_Q
 
 def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     global QY,QCbCr
@@ -98,8 +147,7 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     Cbb_Q = Cbb_Q.reshape(h_c, w_c)
     Crb_Q = Crb_Q.reshape(h_c, w_c)
     
-    showSubMatrix(Yb_Q, 8, 8, 8)
-    showSubMatrix(QY, 8, 8, 8)
+    showSubMatrix(Crb_Q, 8, 8, 8)
     
     showImgLog(Yb_Q, "Yb_Q", cm_grey)
     showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
@@ -244,7 +292,7 @@ def encoder(img):
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
-    
+    Yb_DPCM, Cbb_DPCM, Crb_DPCM = dpcm_encode(Yb_Q, Cbb_Q, Crb_Q)
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     #showImg(Y,"Y downsampling 4:2:0",cm_grey)
@@ -256,12 +304,13 @@ def encoder(img):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Yb_Q, Cbb_Q, Crb_Q
+    return Yb_DPCM, Cbb_DPCM, Crb_DPCM
 
 def decoder(Y, Cb, Cr):
-    Y, Cb, Cr = dct_dequantize(Y, Cb, Cr)
-    Y_d, Cb_d, Cr_d = dct_inv8(Y, Cb, Cr)
-    imgRec = upsampling(Y_d, Cb_d, Cr_d)
+    Y_Q,Cb_Q,Cr_Q = dpcm_decode(Y,Cb,Cr)
+    Y_d, Cb_d, Cr_d = dct_dequantize(Y_Q,Cb_Q,Cr_Q)
+    Y, Cb, Cr = dct_inv8(Y_d, Cb_d, Cr_d)
+    imgRec = upsampling(Y, Cb, Cr)
     imgRec = remove_padding(imgRec)
     imgRec = remove_YCbCr(imgRec)
     return imgRec
