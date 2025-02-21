@@ -5,6 +5,26 @@ import cv2
 import scipy
 import scipy.fftpack
 
+QY = np.array([
+    [16, 11, 10, 16, 24, 40, 51, 61],
+    [12, 12, 14, 19, 26, 58, 60, 55],
+    [14, 13, 16, 24, 40, 57, 69, 56],
+    [14, 17, 22, 29, 51, 87, 80, 62],
+    [18, 22, 37, 56, 68, 109, 103, 77],
+    [24, 35, 55, 64, 81, 104, 113, 92],
+    [49, 64, 78, 87, 103, 121, 120, 101],
+    [72, 92, 95, 98, 112, 100, 103, 99]
+])
+QCbCr = np.array([
+    [17, 18, 24, 47, 99, 99, 99, 99],
+    [18, 21, 26, 66, 99, 99, 99, 99],
+    [24, 26, 56, 99, 99, 99, 99, 99],
+    [47, 66, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99]
+])
 YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
 YCbCr_matrix_2 = np.array([0, 128, 128])
 cm_red = clr.LinearSegmentedColormap.from_list("red",[(0,0,0),(1,0,0)], N=256)
@@ -48,17 +68,31 @@ def upsampling(Y,Cb,Cr):
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
+def dct_quantize(Y_dct, Cb_dct, Cr_dct):
+    Yb_dct = np.round(Y_dct / QY)
+    Cbb_dct = np.round(Cb_dct / QCbCr)
+    Crb_dct = np.round(Cr_dct / QCbCr)
+    showImg(Yb_dct,"Yb_DCT",cm_grey)
+    showImg(Cbb_dct,"Cbb_DCT",cm_grey)
+    showImg(Crb_dct,"Crb_DCT",cm_grey)
+    
+    return Yb_dct, Cbb_dct, Crb_dct
+
+def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
+    Y_dct = Yb_dct * QY
+    Cb_dct = Cbb_dct * QCbCr
+    Cr_dct = Crb_dct * QCbCr
+    return Y_dct, Cb_dct, Cr_dct
 
 def dct_calc(Y, Cb, Cr):
     Y_dct = scipy.fftpack.dct(scipy.fftpack.dct(Y, norm="ortho").T, norm="ortho").T
     Cb_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cb, norm="ortho").T, norm="ortho").T
     Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr, norm="ortho").T, norm="ortho").T
-
+    
     showSubMatrix(Cb, 8, 8, 8)
     showImgLog(Y_dct, "Y_DCT", cm_grey)
     showImgLog(Cb_dct, "Cb_DCT", cm_grey)
     showImgLog(Cr_dct, "Cr_DCT", cm_grey)
-
     return Y_dct, Cb_dct, Cr_dct
 
 
@@ -66,10 +100,7 @@ def dct_inv(Y_dct, Cb_dct, Cr_dct):
     Y = scipy.fftpack.idct(scipy.fftpack.idct(Y_dct.T, norm="ortho").T, norm="ortho")
     Cb = scipy.fftpack.idct(scipy.fftpack.idct(Cb_dct.T, norm="ortho").T, norm="ortho")
     Cr = scipy.fftpack.idct(scipy.fftpack.idct(Cr_dct.T, norm="ortho").T, norm="ortho")
-
     return Y, Cb, Cr
-
-
 
 def add_padding(img):
     # adicionar linhas ou colunas = quociente -  resto -> np.repeat -> np.vstack -> np.hstack
@@ -142,7 +173,9 @@ def encoder(img):
     showImg(Cb,"Cb downsampling 4:2:2",cm_grey)
     showImg(Cr,"Cr downsampling 4:2:2",cm_grey)
 
-    dct_calc(Y,Cb,Cr)
+    Y_dct, Cb_dct, Cr_dct = dct_calc(Y,Cb,Cr)
+    Yb_dct, Cbb_dct, Crb_dct = dct_quantize(Y_dct,Cb_dct,Cr_dct)
+    
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     #showImg(Y,"Y downsampling 4:2:0",cm_grey)
@@ -154,7 +187,7 @@ def encoder(img):
     #print("------------")
     #print("Matriz Cb")
     #showSubMatrix(Cb,8,8,8)
-    return Y,Cb,Cr
+    return Yb_dct, Cbb_dct, Crb_dct
 
 def decoder(Y,Cb,Cr):
     imgRec = dct_inv(Y,Cb,Cr)
