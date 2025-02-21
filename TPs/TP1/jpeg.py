@@ -156,6 +156,7 @@ def encoder(img):
     return Y,Cb,Cr
 
 def decoder(Y,Cb,Cr):
+    imgRec = dct_inv(Y,Cb,Cr)
     imgRec = upsampling(Y,Cb,Cr)
     imgRec = remove_padding(imgRec)
     imgRec = remove_YCbCr(imgRec)
