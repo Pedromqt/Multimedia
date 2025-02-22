@@ -336,13 +336,18 @@ def encoder(img):
     showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
+    Yb_QI, Cbb_QI, Crb_QI = dct_dequantize(Yb_Q, Cbb_Q, Crb_Q)
+    
+    print("Matriz Y depois de dequantize:\n" ,Yb_Q)
+    showSubMatrix(Yb_QI, 8, 8, 8)
+    
     Yb_DPCM = dpcm_encode(Yb_Q)
     Cbb_DPCM = dpcm_encode(Cbb_Q)
     Crb_DPCM = dpcm_encode(Crb_Q)
     
-    Yb_DPCMI = dpcm_decode(Yb_Q)
-    Cbb_DPCMI = dpcm_decode(Cbb_Q)
-    Crb_DPCMI = dpcm_decode(Crb_Q)
+    Yb_DPCMI = dpcm_decode(Yb_DPCM)
+    Cbb_DPCMI = dpcm_decode(Cbb_DPCM)
+    Crb_DPCMI = dpcm_decode(Crb_DPCM)
     
     print("Matriz Y antes de DPCM:\n" ,Yb_Q)
     showSubMatrix(Yb_Q, 8, 8, 8)
