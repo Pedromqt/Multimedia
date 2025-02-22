@@ -68,6 +68,7 @@ def upsampling(Y,Cb,Cr):
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
+import numpy as np
 def dpcm_encode(Y_Q, Cb_Q, Cr_Q):
     Y_Q_blocks = Y_Q.reshape(-1, 8, 8)
     Y_Q_dc_values = Y_Q_blocks[:, 0, 0]
