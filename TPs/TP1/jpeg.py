@@ -106,7 +106,6 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
         QCbCr = np.round(QCbCr*FatorEscala).astype(np.int32)
 
     Y_dct_reshaped = Y_dct.reshape(h // 8, 8, w // 8, 8)
-
     Cb_dct_reshaped = Cb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
     Cr_dct_reshaped = Cr_dct.reshape(h_c // 8, 8, w_c // 8, 8)
 
@@ -118,6 +117,7 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     Cbb_Q = Cbb_Q.reshape(h_c, w_c)
     Crb_Q = Crb_Q.reshape(h_c, w_c)
     
+    print("Matriz Yb_Q quantizada: \n")
     showSubMatrix(Yb_Q, 8, 8, 8)
     
     showImgLog(Yb_Q, "Yb_Q", cm_grey)
@@ -155,15 +155,12 @@ def dct_calc_blocks(channel,number_blocks):
     h, w = channel.shape
     channel_blocks = channel.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
     channel_dct = scipy.fftpack.dct(scipy.fftpack.dct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
-    return channel_dct.transpose(0, 2, 1, 3).reshape(h, w) 
+    return channel_dct.transpose(0, 2, 1, 3).reshape(h, w)
 
-def dct_calc8(Y_d,Cb_d,Cr_d): 
+def dct_calc8(Y_d,Cb_d,Cr_d):
     Y_dct8 = dct_calc_blocks(Y_d,8)
     Cb_dct8 = dct_calc_blocks(Cb_d,8)
     Cr_dct8 = dct_calc_blocks(Cr_d,8)
-    showImgLog(Y_dct8, "Yb_DCT", cm_grey)
-    showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
-    showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     return Y_dct8, Cb_dct8, Cr_dct8
 
 def dct_inv8(Y_dct8,Cb_dct8,Cr_dct8):
@@ -251,6 +248,18 @@ def encoder(img):
     fx = 0.5
     fy = 0.5
     Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr)
+    print("Tamanho canal Y com downsampling 4:2:2")
+    print(Y2.shape[0], Y2.shape[1])
+    print("Matriz canal Y :\n")
+    print(Y2)
+    print("Tamanho canal Cb com downsampling 4:2:2")
+    print(Cb2.shape[0], Cb2.shape[1])
+    print("Matriz canal Cb :\n")
+    print(Cb2)
+    print("Tamanho canal Cr com downsampling 4:2:2")
+    print(Cr2.shape[0], Cr2.shape[1])
+    print("Matriz canal Cr :\n")
+    print(Cr2)
     showImg(Y2,"Y downsampling 4:2:0",cm_grey)
     showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
     showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
@@ -260,14 +269,102 @@ def encoder(img):
     showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
     showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
     showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
+    print("Tamanho canal Y com downsampling 4:2:0")
+    print(Y.shape[0], Y.shape[1])
+    print("Matriz canal Y :\n")
+    showSubMatrix(Y_d, 8, 8, 8)
+    print("Tamanho canal Cb com downsampling 4:2:0")
+    print(Cb_d.shape[0], Cb_d.shape[1])
+    print("Matriz canal Cb :\n")
+    showSubMatrix(Cb_d, 8, 8, 8)
+    print("Tamanho canal Cr com downsampling 4:2:0")
+    print(Cr_d.shape[0], Cr_d.shape[1])
+    print("Matriz canal Cr :\n")
+    showSubMatrix(Cr_d, 8, 8, 8)
+    
+    Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
+    Y_dctI, Cb_dctI, Cr_dctI = dct_inv(Y_dct, Cb_dct, Cr_dct)
 
-    dct_calc(Y_d,Cb_d,Cr_d)
+    print("Matriz Y antes de DCT:\n")
+    showSubMatrix(Y_d, 8, 8, 8)
+    print("Matriz Y depois de DCT:\n")
+    showSubMatrix(Y_dct, 8, 8, 8)
+    print("Matriz Y depois de DCT inversa:\n")
+    showSubMatrix(Y_dctI, 8, 8, 8)
+
+    print("Matriz Cb antes de DCT:\n")
+    showSubMatrix(Cb_d, 8, 8, 8)
+    print("Matriz Cb depois de DCT:\n")
+    showSubMatrix(Cb_dct, 8, 8, 8)
+    print("Matriz Cb depois de DCT inversa:\n")
+    showSubMatrix(Cb_dctI, 8, 8, 8)
+
+    print("Matriz Cr antes de DCT:\n")
+    showSubMatrix(Cr_d, 8, 8, 8)
+    print("Matriz Cr depois de DCT:\n")
+    showSubMatrix(Cr_dct, 8, 8, 8)
+    print("Matriz Cr depois de DCT inversa:\n")
+    showSubMatrix(Cr_dctI, 8, 8, 8)
+
+    
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
+    Y_dct8I, Cb_dct8I, Cr_dct8I = dct_inv8(Y_dct8,Cb_dct8,Cr_dct8)
+    
+    print("Matriz Y antes de DCT8:\n" ,Y_d)
+    showSubMatrix(Y_d, 8, 8, 8)
+    print("Matriz Y depois de DCT8:\n" ,Y_dct8)
+    showSubMatrix(Y_dct8, 8, 8, 8)
+    print("Matriz Y depois de DCT8 inversa:\n" ,Y_dct8I)
+    showSubMatrix(Y_dct8I, 8, 8, 8)
+    
+    print("Matriz Cb antes de DCT:\n" ,Cb_d)
+    showSubMatrix(Cb_d, 8, 8, 8)
+    print("Matriz Cb depois de DCT8:\n" ,Cb_dct8)
+    showSubMatrix(Cb_dct8, 8, 8, 8)
+    print("Matriz Cb depois de DCT8 inversa:\n" ,Cb_dct8I)
+    showSubMatrix(Cb_dct8I, 8, 8, 8)
+
+    print("Matriz Cr antes de DCT8:\n" ,Cr_d)
+    showSubMatrix(Cr_d, 8, 8, 8)
+    print("Matriz Cr depois de DCT8:\n" ,Cr_dct8)
+    showSubMatrix(Cr_dct8, 8, 8, 8)
+    print("Matriz Cr depois de DCT8 inversa:\n" ,Cr_dct8I)
+    showSubMatrix(Cr_dct8I, 8, 8, 8)
+
+    showImgLog(Y_dct8, "Yb_DCT", cm_grey)
+    showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
+    showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
+    
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
     Yb_DPCM = dpcm_encode(Yb_Q)
     Cbb_DPCM = dpcm_encode(Cbb_Q)
     Crb_DPCM = dpcm_encode(Crb_Q)
+    
+    Yb_DPCMI = dpcm_decode(Yb_Q)
+    Cbb_DPCMI = dpcm_decode(Cbb_Q)
+    Crb_DPCMI = dpcm_decode(Crb_Q)
+    
+    print("Matriz Y antes de DPCM:\n" ,Yb_Q)
+    showSubMatrix(Yb_Q, 8, 8, 8)
+    print("Matriz Y depois de DPCM:\n" ,Yb_DPCM)
     showSubMatrix(Yb_DPCM, 8, 8, 8)
+    print("Matriz Y depois de DPCM inversa:\n" ,Yb_DPCMI)
+    showSubMatrix(Yb_DPCMI, 8, 8, 8)
+    
+    print("Matriz Cb antes de DPCM:\n" ,Cbb_Q)
+    showSubMatrix(Cbb_Q, 8, 8, 8)
+    print("Matriz Cb depois de DPCM:\n" ,Cbb_DPCM)
+    showSubMatrix(Cbb_DPCM, 8, 8, 8)
+    print("Matriz Cb depois de DPCM inversa:\n" ,Cbb_DPCMI)
+    showSubMatrix(Cbb_DPCMI, 8, 8, 8)
+
+    print("Matriz Cr antes de DPCM:\n" ,Crb_Q)
+    showSubMatrix(Crb_Q, 8, 8, 8)
+    print("Matriz Cr depois de DPCM:\n" ,Crb_DPCM)
+    showSubMatrix(Crb_DPCM, 8, 8, 8)
+    print("Matriz Cr depois de DPCM inversa:\n" ,Crb_DPCMI)
+    showSubMatrix(Crb_DPCMI, 8, 8, 8)
+    
     showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
     showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
     showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
