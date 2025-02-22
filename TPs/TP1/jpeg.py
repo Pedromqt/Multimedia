@@ -56,7 +56,7 @@ def showSubMatrix(img,i,j,dim):
         img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim,0])
         
-def downsampling(Y,Cb,Cr, fx, fy):
+def downsampling(Y,Cb,Cr):
     Y_d = Y
     Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
@@ -252,13 +252,13 @@ def encoder(img):
     global fy
     fx = 0.5
     fy = 0.5
-    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr, fx, fy)
+    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr)
     showImg(Y2,"Y downsampling 4:2:0",cm_grey)
     showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
     showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
-    Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr, fx, fy)
+    Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
     showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
     showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
     showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
