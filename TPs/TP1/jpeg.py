@@ -56,7 +56,7 @@ def showSubMatrix(img,i,j,dim):
         img = img.astype(np.float32)
         print(img[i:i+dim,j:j+dim,0])
         
-def downsampling(Y,Cb,Cr, fx, fy):
+def downsampling(Y,Cb,Cr):
     Y_d = Y
     Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
@@ -68,56 +68,27 @@ def upsampling(Y,Cb,Cr):
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
-import numpy as np
-def dpcm_encode(Y_Q, Cb_Q, Cr_Q):
-    Y_Q_blocks = Y_Q.reshape(-1, 8, 8)
-    Y_Q_dc_values = Y_Q_blocks[:, 0, 0]
-    Y_Q_dpcm_values = np.diff(Y_Q_dc_values, prepend=Y_Q_dc_values[0])
-    Y_Q_blocks[:, 0, 0] = Y_Q_dpcm_values
+def dpcm_encode(coef_dc):
+    diff = coef_dc.copy()
+    for i in range(0, len(coef_dc), 8):
+        for j in range(0, len(coef_dc[0]), 8):
+            if j == 0:
+                if i != 0:
+                    diff[i][j] = coef_dc[i][j] - coef_dc[i-8][len(coef_dc[0])-8-1]
+            else:
+                diff[i][j] = coef_dc[i][j] - coef_dc[i][j-8]
+    return diff
     
-    Cb_Q_blocks = Cb_Q.reshape(-1, 8, 8)
-    Cb_Q_dc_values = Cb_Q_blocks[:, 0, 0]
-    Cb_Q_dpcm_values = np.diff(Cb_Q_dc_values, prepend=Cb_Q_dc_values[0])
-    Cb_Q_blocks[:, 0, 0] = Cb_Q_dc_values
-    
-    Cr_Q_blocks = Cr_Q.reshape(-1, 8, 8)
-    Cr_Q_dc_values = Cr_Q_blocks[:, 0, 0]
-    Cr_Q_dpcm_values = np.diff(Cr_Q_dc_values, prepend=Cr_Q_dc_values[0]) 
-    Cr_Q_blocks[:, 0, 0] = Cr_Q_dc_values
-
-    Yb_DPCM =  Y_Q_blocks.reshape(Y_Q.shape)
-    Cbb_DPCM = Cb_Q_blocks.reshape(Cb_Q.shape)
-    Crb_DPCM = Cr_Q_blocks.reshape(Cr_Q.shape)
-    
-    showSubMatrix(Crb_DPCM, 8, 8, 8)
-    
-    showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
-    showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
-    showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
-
-    return Yb_DPCM, Cbb_DPCM, Crb_DPCM
-
-def dpcm_decode(Yb_DPCM, Cbb_DPCM, Crb_DPCM):
-    Yb_DPCM_blocks = Yb_DPCM.reshape(-1, 8, 8)
-    Yb_DPCM_dc_values = Yb_DPCM_blocks[:, 0, 0]
-    Yb_DPCM_dpcm_values = np.cumsum(Yb_DPCM_dc_values)
-    Yb_DPCM_blocks[:, 0, 0] = Yb_DPCM_dpcm_values
-    
-    Cbb_DPCM_blocks = Cbb_DPCM.reshape(-1, 8, 8)
-    Cbb_DPCM_dc_values = Cbb_DPCM_blocks[:, 0, 0]
-    Cbb_DPCM_dpcm_values = np.cumsum(Cbb_DPCM_dc_values)
-    Cbb_DPCM_blocks[:, 0, 0] = Cbb_DPCM_dc_values
-    
-    Crb_DPCM_blocks = Crb_DPCM.reshape(-1, 8, 8)
-    Crb_DPCM_dc_values = Crb_DPCM_blocks[:, 0, 0]
-    Crb_DPCM_dpcm_values = np.cumsum(Crb_DPCM_dc_values) 
-    Crb_DPCM_blocks[:, 0, 0] = Crb_DPCM_dc_values
-
-    Yb_Q =  Yb_DPCM_blocks.reshape(Yb_DPCM.shape)
-    Cbb_Q = Cbb_DPCM_blocks.reshape(Cbb_DPCM.shape)
-    Crb_Q = Crb_DPCM_blocks.reshape(Crb_DPCM.shape)
-
-    return Yb_Q, Cbb_Q, Crb_Q
+def dpcm_decode(diff):
+    coef_dc = diff.copy()
+    for i in range(0, len(diff), 8):
+        for j in range(0, len(diff[0]), 8):
+            if j == 0:
+                if i != 0:
+                    coef_dc[i][j] = coef_dc[i -8][len(diff[0])-8-1] + diff[i][j]
+            else:
+                coef_dc[i][j] = coef_dc[i][j-8] + diff[i][j]
+    return coef_dc
 
 def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     global QY,QCbCr
@@ -147,7 +118,7 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     Cbb_Q = Cbb_Q.reshape(h_c, w_c)
     Crb_Q = Crb_Q.reshape(h_c, w_c)
     
-    showSubMatrix(Crb_Q, 8, 8, 8)
+    showSubMatrix(Yb_Q, 8, 8, 8)
     
     showImgLog(Yb_Q, "Yb_Q", cm_grey)
     showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
@@ -171,6 +142,7 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     Y_dct = Y_dct.reshape(h, w)
     Cb_dct = Cb_dct.reshape(h_c, w_c)
     Cr_dct = Cr_dct.reshape(h_c, w_c)
+    
     return Y_dct, Cb_dct, Cr_dct
 
 def dct_inv_blocks(channel_dct,number_blocks):
@@ -248,7 +220,7 @@ def YCbCr(img):
     return Y,Cb,Cr
 
 # [Y Cb Cr] -> ao aplicar Transposta: [ Y  ]
-#                                     | Cb | 
+#                                     | Cb |
 #                                     [ Cr ]
     
 def remove_YCbCr(img):
@@ -278,21 +250,27 @@ def encoder(img):
     global fy
     fx = 0.5
     fy = 0.5
-    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr, fx, fy)
+    Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr)
     showImg(Y2,"Y downsampling 4:2:0",cm_grey)
     showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
     showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
-    Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr, fx, fy)
+    Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
     showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
     showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
     showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
 
-    Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
+    dct_calc(Y_d,Cb_d,Cr_d)
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
-    Yb_DPCM, Cbb_DPCM, Crb_DPCM = dpcm_encode(Yb_Q, Cbb_Q, Crb_Q)
+    Yb_DPCM = dpcm_encode(Yb_Q)
+    Cbb_DPCM = dpcm_encode(Cbb_Q)
+    Crb_DPCM = dpcm_encode(Crb_Q)
+    showSubMatrix(Yb_DPCM, 8, 8, 8)
+    showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
+    showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
+    showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     #showImg(Y,"Y downsampling 4:2:0",cm_grey)
@@ -307,7 +285,9 @@ def encoder(img):
     return Yb_DPCM, Cbb_DPCM, Crb_DPCM
 
 def decoder(Y, Cb, Cr):
-    Y_Q,Cb_Q,Cr_Q = dpcm_decode(Y,Cb,Cr)
+    Y_Q = dpcm_decode(Y)
+    Cb_Q = dpcm_decode(Cb)
+    Cr_Q = dpcm_decode(Cr)
     Y_d, Cb_d, Cr_d = dct_dequantize(Y_Q,Cb_Q,Cr_Q)
     Y, Cb, Cr = dct_inv8(Y_d, Cb_d, Cr_d)
     imgRec = upsampling(Y, Cb, Cr)
