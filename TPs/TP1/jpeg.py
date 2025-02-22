@@ -248,15 +248,15 @@ def encoder(img):
     fx = 0.5
     fy = 0.5
     Y2,Cb2,Cr2 = downsampling(Y,Cb,Cr)
-    print("Tamanho canal Y com downsampling 4:2:2")
+    print("Tamanho canal Y com downsampling 4:2:0")
     print(Y2.shape[0], Y2.shape[1])
     print("Matriz canal Y :\n")
     print(Y2)
-    print("Tamanho canal Cb com downsampling 4:2:2")
+    print("Tamanho canal Cb com downsampling 4:2:0")
     print(Cb2.shape[0], Cb2.shape[1])
     print("Matriz canal Cb :\n")
     print(Cb2)
-    print("Tamanho canal Cr com downsampling 4:2:2")
+    print("Tamanho canal Cr com downsampling 4:2:0")
     print(Cr2.shape[0], Cr2.shape[1])
     print("Matriz canal Cr :\n")
     print(Cr2)
@@ -266,18 +266,22 @@ def encoder(img):
     fx = 0.5
     fy = 1
     Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
+    imgUP =  upsampling(Y_d,Cb_d,Cr_d)
+    print("Matriz canal Cb upsampling:\n")
+    showSubMatrix(imgUP[:,:,1], 8, 8, 8)
+    
     showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
     showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
     showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
-    print("Tamanho canal Y com downsampling 4:2:0")
+    print("Tamanho canal Y com downsampling 4:2:2")
     print(Y.shape[0], Y.shape[1])
     print("Matriz canal Y :\n")
     showSubMatrix(Y_d, 8, 8, 8)
-    print("Tamanho canal Cb com downsampling 4:2:0")
+    print("Tamanho canal Cb com downsampling 4:2:2")
     print(Cb_d.shape[0], Cb_d.shape[1])
     print("Matriz canal Cb :\n")
     showSubMatrix(Cb_d, 8, 8, 8)
-    print("Tamanho canal Cr com downsampling 4:2:0")
+    print("Tamanho canal Cr com downsampling 4:2:2")
     print(Cr_d.shape[0], Cr_d.shape[1])
     print("Matriz canal Cr :\n")
     showSubMatrix(Cr_d, 8, 8, 8)
@@ -406,6 +410,7 @@ def main():
     Y,Cb,Cr = encoder(img)
     imgRec = decoder(Y,Cb,Cr)
     showImg(imgRec,"Imagem Reconstruida")
+    showSubMatrix(imgRec[:,:,0], 8, 8, 8)
 
 if __name__ == "__main__":
     main()
