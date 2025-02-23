@@ -101,11 +101,11 @@ def downsampling(Y,Cb,Cr):
     showSubMatrix(Cb_dS4,8,8,8)
     print("Erro comparardo com a Matriz Teorica :\n")
     print(erroS4)
-    return  Y_d, Cb_dN, Cr_dN
+    return  Y_d, Cb_dL, Cr_dL
 
 def upsampling(Y,Cb,Cr):
-    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
-    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_LINEAR)
+    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_LINEAR)
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
