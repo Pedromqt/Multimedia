@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
 import cv2
-import scipy
 import scipy.fftpack
 
 QY = np.array([
@@ -266,9 +265,6 @@ def encoder(img):
     fx = 0.5
     fy = 1
     Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
-    imgUP =  upsampling(Y_d,Cb_d,Cr_d)
-    print("Matriz canal Cb upsampling:\n")
-    showSubMatrix(imgUP[:,:,1], 8, 8, 8)
     
     showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
     showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
@@ -312,67 +308,53 @@ def encoder(img):
 
     
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
-    Y_dct8I, Cb_dct8I, Cr_dct8I = dct_inv8(Y_dct8,Cb_dct8,Cr_dct8)
+    
     
     print("Matriz Y antes de DCT8:\n" ,Y_d)
     showSubMatrix(Y_d, 8, 8, 8)
     print("Matriz Y depois de DCT8:\n" ,Y_dct8)
     showSubMatrix(Y_dct8, 8, 8, 8)
-    print("Matriz Y depois de DCT8 inversa:\n" ,Y_dct8I)
-    showSubMatrix(Y_dct8I, 8, 8, 8)
+    
     
     print("Matriz Cb antes de DCT:\n" ,Cb_d)
     showSubMatrix(Cb_d, 8, 8, 8)
     print("Matriz Cb depois de DCT8:\n" ,Cb_dct8)
     showSubMatrix(Cb_dct8, 8, 8, 8)
-    print("Matriz Cb depois de DCT8 inversa:\n" ,Cb_dct8I)
-    showSubMatrix(Cb_dct8I, 8, 8, 8)
+    
 
     print("Matriz Cr antes de DCT8:\n" ,Cr_d)
     showSubMatrix(Cr_d, 8, 8, 8)
     print("Matriz Cr depois de DCT8:\n" ,Cr_dct8)
     showSubMatrix(Cr_dct8, 8, 8, 8)
-    print("Matriz Cr depois de DCT8 inversa:\n" ,Cr_dct8I)
-    showSubMatrix(Cr_dct8I, 8, 8, 8)
+    
 
     showImgLog(Y_dct8, "Yb_DCT", cm_grey)
     showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
     showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
-    Yb_QI, Cbb_QI, Crb_QI = dct_dequantize(Yb_Q, Cbb_Q, Crb_Q)
-    
-    print("Matriz Y depois de dequantize:\n" ,Yb_Q)
-    showSubMatrix(Yb_QI, 8, 8, 8)
     
     Yb_DPCM = dpcm_encode(Yb_Q)
     Cbb_DPCM = dpcm_encode(Cbb_Q)
     Crb_DPCM = dpcm_encode(Crb_Q)
     
-    Yb_DPCMI = dpcm_decode(Yb_DPCM)
-    Cbb_DPCMI = dpcm_decode(Cbb_DPCM)
-    Crb_DPCMI = dpcm_decode(Crb_DPCM)
-    
     print("Matriz Y antes de DPCM:\n" ,Yb_Q)
     showSubMatrix(Yb_Q, 8, 8, 8)
     print("Matriz Y depois de DPCM:\n" ,Yb_DPCM)
     showSubMatrix(Yb_DPCM, 8, 8, 8)
-    print("Matriz Y depois de DPCM inversa:\n" ,Yb_DPCMI)
-    showSubMatrix(Yb_DPCMI, 8, 8, 8)
+    
     
     print("Matriz Cb antes de DPCM:\n" ,Cbb_Q)
     showSubMatrix(Cbb_Q, 8, 8, 8)
     print("Matriz Cb depois de DPCM:\n" ,Cbb_DPCM)
     showSubMatrix(Cbb_DPCM, 8, 8, 8)
-    print("Matriz Cb depois de DPCM inversa:\n" ,Cbb_DPCMI)
-    showSubMatrix(Cbb_DPCMI, 8, 8, 8)
+   
 
     print("Matriz Cr antes de DPCM:\n" ,Crb_Q)
     showSubMatrix(Crb_Q, 8, 8, 8)
     print("Matriz Cr depois de DPCM:\n" ,Crb_DPCM)
     showSubMatrix(Crb_DPCM, 8, 8, 8)
-    print("Matriz Cr depois de DPCM inversa:\n" ,Crb_DPCMI)
-    showSubMatrix(Crb_DPCMI, 8, 8, 8)
+    
     
     showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
     showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
@@ -392,11 +374,27 @@ def encoder(img):
 
 def decoder(Y, Cb, Cr):
     Y_Q = dpcm_decode(Y)
+    print("Matriz Y depois de DPCM inversa:\n" ,Y_Q)
+    showSubMatrix(Y_Q, 8, 8, 8)
     Cb_Q = dpcm_decode(Cb)
+    print("Matriz Cb depois de DPCM inversa:\n" ,Cb_Q)
+    showSubMatrix(Cb_Q, 8, 8, 8)
     Cr_Q = dpcm_decode(Cr)
+    print("Matriz Cr depois de DPCM inversa:\n" ,Cr_Q)
+    showSubMatrix(Cr_Q, 8, 8, 8)
     Y_d, Cb_d, Cr_d = dct_dequantize(Y_Q,Cb_Q,Cr_Q)
+    print("Matriz Y depois de dequantize:\n" ,Y_d)
+    showSubMatrix(Y_d, 8, 8, 8)
     Y, Cb, Cr = dct_inv8(Y_d, Cb_d, Cr_d)
+    print("Matriz Y depois de DCT8 inversa:\n" ,Y)
+    showSubMatrix(Y, 8, 8, 8)
+    print("Matriz Cb depois de DCT8 inversa:\n" ,Cb)
+    showSubMatrix(Cb, 8, 8, 8)
+    print("Matriz Cr depois de DCT8 inversa:\n" ,Cr)
+    showSubMatrix(Cr, 8, 8, 8)
     imgRec = upsampling(Y, Cb, Cr)
+    print("Matriz canal Cb upsampling:\n")
+    showSubMatrix(imgRec[:,:,1], 8, 8, 8)
     imgRec = remove_padding(imgRec)
     imgRec = remove_YCbCr(imgRec)
     return imgRec
@@ -410,6 +408,7 @@ def main():
     Y,Cb,Cr = encoder(img)
     imgRec = decoder(Y,Cb,Cr)
     showImg(imgRec,"Imagem Reconstruida")
+    print("R_decoded:\n")
     showSubMatrix(imgRec[:,:,0], 8, 8, 8)
 
 if __name__ == "__main__":
