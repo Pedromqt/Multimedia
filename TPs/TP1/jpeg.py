@@ -104,8 +104,8 @@ def downsampling(Y,Cb,Cr):
     return  Y_d, Cb_dN, Cr_dN
 
 def upsampling(Y,Cb,Cr):
-    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_AREA)
-    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_AREA)
+    Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
+    Cr2  = cv2.resize(Cr, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_NEAREST)
     imgRec = np.stack((Y,Cb2,Cr2), axis = -1)
     return imgRec
 
@@ -198,8 +198,8 @@ def dct_calc_blocks(channel, number_blocks):
         channel = np.hstack((channel, np.tile(last_column, (1, 32))))
 
     
-    for i in range(0, channel.shape[0], number_blocks):
-        for j in range(0, channel.shape[1], number_blocks):
+    for i in range(0, h, number_blocks):
+        for j in range(0, w, number_blocks):
             block = channel[i:i+number_blocks, j:j+number_blocks]
             block_dct = scipy.fftpack.dct(scipy.fftpack.dct(block, axis=0, norm="ortho"), axis=1, norm="ortho")
             channel_dct[i:i+number_blocks, j:j+number_blocks] = block_dct
