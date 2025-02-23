@@ -186,26 +186,46 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     
     return Y_dct, Cb_dct, Cr_dct
 
-def dct_inv_blocks(channel_dct,number_blocks):
-    h, w = channel_dct.shape
-    channel_blocks = channel_dct.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3) 
-    channel_idct = scipy.fftpack.idct(scipy.fftpack.idct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho") 
-    channel_idct = channel_idct.transpose(0, 2, 1, 3).reshape(h, w)
-    if number_blocks == 64 and w != 1216:
-        channel_idct = channel_idct[:, :-32]
-    
-    return channel_idct
+import numpy as np
+import scipy.fftpack
 
-def dct_calc_blocks(channel,number_blocks):
+def dct_calc_blocks(channel, number_blocks):
+    
     h, w = channel.shape
-    if(number_blocks == 64 and w % 64 != 0):
-        w += 32
+    channel_dct = np.zeros_like(channel, dtype=np.float32)
+
+    
+    if number_blocks == 64 and w % 64 != 0:
         last_column = channel[:, -1:]
         channel = np.hstack((channel, np.tile(last_column, (1, 32))))
+
     
-    channel_blocks = channel.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
-    channel_dct = scipy.fftpack.dct(scipy.fftpack.dct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
-    return channel_dct.transpose(0, 2, 1, 3).reshape(h, w)
+    for i in range(0, channel.shape[0], number_blocks):
+        for j in range(0, channel.shape[1], number_blocks):
+            block = channel[i:i+number_blocks, j:j+number_blocks]
+            block_dct = scipy.fftpack.dct(scipy.fftpack.dct(block, axis=0, norm="ortho"), axis=1, norm="ortho")
+            channel_dct[i:i+number_blocks, j:j+number_blocks] = block_dct
+
+    return channel_dct
+
+
+def dct_inv_blocks(channel_dct, number_blocks):
+    h, w = channel_dct.shape
+    channel_idct = np.zeros_like(channel_dct, dtype=np.float32)
+
+    
+    for i in range(0, h, number_blocks):
+        for j in range(0, w, number_blocks):
+            block = channel_dct[i:i+number_blocks, j:j+number_blocks]
+            block_idct = scipy.fftpack.idct(scipy.fftpack.idct(block, axis=0, norm="ortho"), axis=1, norm="ortho")
+            channel_idct[i:i+number_blocks, j:j+number_blocks] = block_idct
+
+    
+    if number_blocks == 64 and w != 1216:
+        channel_idct = channel_idct[:, :-32]
+
+    return channel_idct
+
 
 def dct_calc8(Y_d,Cb_d,Cr_d):
     Y_dct8 = dct_calc_blocks(Y_d,8)
