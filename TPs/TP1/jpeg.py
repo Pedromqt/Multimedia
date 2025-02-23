@@ -115,7 +115,7 @@ def dpcm_encode(coef_dc):
         for j in range(0, len(coef_dc[0]), 8):
             if j == 0:
                 if i != 0:
-                    diff[i][j] = coef_dc[i][j] - coef_dc[i-8][len(coef_dc[0])-8-1]
+                    diff[i][j] = coef_dc[i][j] - coef_dc[i-8][0]
             else:
                 diff[i][j] = coef_dc[i][j] - coef_dc[i][j-8]
     return diff
@@ -126,7 +126,7 @@ def dpcm_decode(diff):
         for j in range(0, len(diff[0]), 8):
             if j == 0:
                 if i != 0:
-                    coef_dc[i][j] = coef_dc[i -8][len(diff[0])-8-1] + diff[i][j]
+                    coef_dc[i][j] = coef_dc[i -8][0] + diff[i][j]
             else:
                 coef_dc[i][j] = coef_dc[i][j-8] + diff[i][j]
     return coef_dc
