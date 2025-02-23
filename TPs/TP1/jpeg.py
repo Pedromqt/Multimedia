@@ -186,8 +186,6 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     
     return Y_dct, Cb_dct, Cr_dct
 
-import numpy as np
-import scipy.fftpack
 
 def dct_calc_blocks(channel, number_blocks):
     
@@ -399,6 +397,9 @@ def encoder(img):
     showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
+
+    print("Matriz Y depois aaaaaaaaaade qunat:\n")
+    showSubMatrix(Yb_Q, 8, 8, 8) 
     
     Yb_DPCM = dpcm_encode(Yb_Q)
     Cbb_DPCM = dpcm_encode(Cbb_Q)
