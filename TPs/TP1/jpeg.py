@@ -146,12 +146,21 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
 
 def dct_inv_blocks(channel_dct,number_blocks):
     h, w = channel_dct.shape
-    channel_dct_blocks = channel_dct.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
-    channel_idct = scipy.fftpack.idct(scipy.fftpack.idct(channel_dct_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
-    return channel_idct.transpose(0, 2, 1, 3).reshape(h, w)
+    channel_blocks = channel_dct.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3) 
+    channel_idct = scipy.fftpack.idct(scipy.fftpack.idct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho") 
+    channel_idct = channel_idct.transpose(0, 2, 1, 3).reshape(h, w)
+    if number_blocks == 64 and w != 1216:
+        channel_idct = channel_idct[:, :-32]
+    
+    return channel_idct
 
 def dct_calc_blocks(channel,number_blocks):
     h, w = channel.shape
+    if(number_blocks == 64 and w % 64 != 0):
+        w += 32
+        last_column = channel[:, -1:]
+        channel = np.hstack((channel, np.tile(last_column, (1, 32))))
+    
     channel_blocks = channel.reshape(h // number_blocks, number_blocks, w // number_blocks, number_blocks).transpose(0, 2, 1, 3)
     channel_dct = scipy.fftpack.dct(scipy.fftpack.dct(channel_blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
     return channel_dct.transpose(0, 2, 1, 3).reshape(h, w)
