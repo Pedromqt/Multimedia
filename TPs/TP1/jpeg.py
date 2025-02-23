@@ -283,29 +283,23 @@ def encoder(img):
     showSubMatrix(Cr_d, 8, 8, 8)
     
     Y_dct, Cb_dct, Cr_dct = dct_calc(Y_d,Cb_d,Cr_d)
-    Y_dctI, Cb_dctI, Cr_dctI = dct_inv(Y_dct, Cb_dct, Cr_dct)
-
+   
     print("Matriz Y antes de DCT:\n")
     showSubMatrix(Y_d, 8, 8, 8)
     print("Matriz Y depois de DCT:\n")
     showSubMatrix(Y_dct, 8, 8, 8)
-    print("Matriz Y depois de DCT inversa:\n")
-    showSubMatrix(Y_dctI, 8, 8, 8)
-
+    
     print("Matriz Cb antes de DCT:\n")
     showSubMatrix(Cb_d, 8, 8, 8)
     print("Matriz Cb depois de DCT:\n")
     showSubMatrix(Cb_dct, 8, 8, 8)
-    print("Matriz Cb depois de DCT inversa:\n")
-    showSubMatrix(Cb_dctI, 8, 8, 8)
+    
 
     print("Matriz Cr antes de DCT:\n")
     showSubMatrix(Cr_d, 8, 8, 8)
     print("Matriz Cr depois de DCT:\n")
     showSubMatrix(Cr_dct, 8, 8, 8)
-    print("Matriz Cr depois de DCT inversa:\n")
-    showSubMatrix(Cr_dctI, 8, 8, 8)
-
+    
     
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     
