@@ -24,6 +24,15 @@ QCbCr = np.array([
     [99, 99, 99, 99, 99, 99, 99, 99],
     [99, 99, 99, 99, 99, 99, 99, 99]
 ])
+Cb_Down = np.array([[136.037 ,135.862 ,135.869 ,135.875 ,135.875 ,135.869 ,135.869 ,135.875],
+    [136.037 ,135.869 ,135.869 ,135.875 ,135.875 ,135.869 ,135.869 ,135.875],
+    [136.037 ,135.869, 135.869 ,136.037 ,136.037 ,135.869 ,135.869 ,136.037],
+    [134.706 ,134.869 ,134.869 ,134.869 ,134.869 ,134.862 ,134.862 ,135.869],
+    [134.869 ,134.869 ,134.869 ,134.862 ,134.862 ,134.862 ,134.862 ,134.862],
+    [134.031 ,134.369 ,134.031 ,134.194 ,134.194 ,134.031 ,134.031 ,134.194],
+    [133.194 ,133.031 ,133.031 ,132.856 ,134.187 ,134.031 ,134.031 ,134.194],
+    [132.856 ,133.031 ,133.031 ,133.019 ,133.019 ,133.031 ,133.031 ,133.194]])
+
 YCbCr_matrix = np.array([[0.299,0.587,0.114],[-0.168736,-0.331264,0.5],[0.5,-0.418688,-0.081312]])
 YCbCr_matrix_2 = np.array([0, 128, 128])
 cm_red = clr.LinearSegmentedColormap.from_list("red",[(0,0,0),(1,0,0)], N=256)
@@ -57,9 +66,42 @@ def showSubMatrix(img,i,j,dim):
         
 def downsampling(Y,Cb,Cr):
     Y_d = Y
-    Cb_d = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
-    Cr_d = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
-    return  Y_d, Cb_d, Cr_d
+    Cb_dA = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
+    Cr_dA = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
+    erroA = np.mean(np.abs(Cb_dA[8:16,8:16] - Cb_Down))
+    print("Matriz canal Cb Interpolacao Area :\n")
+    showSubMatrix(Cb_dA,8,8,8)
+    print("Erro comparardo com a Matriz Teorica :\n")
+    print(erroA)
+    Cb_dN = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    Cr_dN = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
+    erroN = np.mean(np.abs(Cb_dN[8:16,8:16] - Cb_Down))
+    print("Matriz canal Cb Interpolacao Nearest :\n")
+    showSubMatrix(Cb_dN,8,8,8)
+    print("Erro comparardo com a Matriz Teorica :\n")
+    print(erroN)
+    Cb_dL = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_LINEAR)
+    Cr_dL = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_LINEAR)
+    erroL = np.mean(np.abs(Cb_dL[8:16,8:16] - Cb_Down))
+    print("Matriz canal Cb Interpolacao Linear :\n")
+    showSubMatrix(Cb_dL,8,8,8)
+    print("Erro comparardo com a Matriz Teorica :\n")
+    print(erroL)
+    Cb_dC = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC)
+    Cr_dC = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC)
+    erroC = np.mean(np.abs(Cb_dC[8:16,8:16] - Cb_Down))
+    print("Matriz canal Cb Interpolacao Cubica :\n")
+    showSubMatrix(Cb_dC,8,8,8)
+    print("Erro comparardo com a Matriz Teorica :\n")
+    print(erroC)
+    Cb_dS4 = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_LANCZOS4)
+    Cr_dS4 = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_LANCZOS4)
+    erroS4 = np.mean(np.abs(Cb_dS4[8:16,8:16] - Cb_Down))
+    print("Matriz canal Cb Interpolacao LancZOS4 :\n")
+    showSubMatrix(Cb_dS4,8,8,8)
+    print("Erro comparardo com a Matriz Teorica :\n")
+    print(erroS4)
+    return  Y_d, Cb_dN, Cr_dN
 
 def upsampling(Y,Cb,Cr):
     Cb2  = cv2.resize(Cb, None, fx=1/fx, fy=1/fy, interpolation=cv2.INTER_AREA)
@@ -248,6 +290,7 @@ def encoder(img):
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
+
     #showImg(Y,"Y",cm_grey)
     #showImg(Cb,"Cb",cm_grey)
     #showImg(Cr,"Cr",cm_grey)
