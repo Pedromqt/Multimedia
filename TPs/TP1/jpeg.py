@@ -143,16 +143,16 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
         QY = np.ones((8,8))
         QCbCr = np.ones((8,8))
     else:
-        QY = np.round(QY*FatorEscala).astype(np.int32)
-        QCbCr = np.round(QCbCr*FatorEscala).astype(np.int32)
+        QY = np.round(QY*FatorEscala).astype(np.float32)
+        QCbCr = np.round(QCbCr*FatorEscala).astype(np.float32)
 
     Y_dct_reshaped = Y_dct.reshape(h // 8, 8, w // 8, 8)
     Cb_dct_reshaped = Cb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
     Cr_dct_reshaped = Cr_dct.reshape(h_c // 8, 8, w_c // 8, 8)
 
-    Yb_Q = np.round(Y_dct_reshaped / QY[np.newaxis, :, np.newaxis, :]).astype(np.int32)
-    Cbb_Q = np.round(Cb_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
-    Crb_Q = np.round(Cr_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
+    Yb_Q = np.round(Y_dct_reshaped / QY[np.newaxis, :, np.newaxis, :]).astype(np.float32)
+    Cbb_Q = np.round(Cb_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
+    Crb_Q = np.round(Cr_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
     
     Yb_Q = Yb_Q.reshape(h, w)
     Cbb_Q = Cbb_Q.reshape(h_c, w_c)
@@ -176,9 +176,9 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     Cbb_dct_reshaped = Cbb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
     Crb_dct_reshaped = Crb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
 
-    Y_dct = np.round(Yb_dct_reshaped * QY[np.newaxis, :, np.newaxis, :]).astype(np.int32)
-    Cb_dct = np.round(Cbb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
-    Cr_dct = np.round(Crb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.int32)
+    Y_dct = np.round(Yb_dct_reshaped * QY[np.newaxis, :, np.newaxis, :]).astype(np.float32)
+    Cb_dct = np.round(Cbb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
+    Cr_dct = np.round(Crb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
     
     Y_dct = Y_dct.reshape(h, w)
     Cb_dct = Cb_dct.reshape(h_c, w_c)
@@ -374,21 +374,21 @@ def encoder(img):
     Y_dct8, Cb_dct8, Cr_dct8 = dct_calc8(Y_d,Cb_d,Cr_d)
     
     
-    print("Matriz Y antes de DCT8:\n" ,Y_d)
+    print("Matriz Y antes de DCT8:\n" )
     showSubMatrix(Y_d, 8, 8, 8)
-    print("Matriz Y depois de DCT8:\n" ,Y_dct8)
+    print("Matriz Y depois de DCT8:\n" )
     showSubMatrix(Y_dct8, 8, 8, 8)
     
     
-    print("Matriz Cb antes de DCT:\n" ,Cb_d)
+    print("Matriz Cb antes de DCT:\n" )
     showSubMatrix(Cb_d, 8, 8, 8)
-    print("Matriz Cb depois de DCT8:\n" ,Cb_dct8)
+    print("Matriz Cb depois de DCT8:\n" )
     showSubMatrix(Cb_dct8, 8, 8, 8)
     
 
-    print("Matriz Cr antes de DCT8:\n" ,Cr_d)
+    print("Matriz Cr antes de DCT8:\n" )
     showSubMatrix(Cr_d, 8, 8, 8)
-    print("Matriz Cr depois de DCT8:\n" ,Cr_dct8)
+    print("Matriz Cr depois de DCT8:\n" )
     showSubMatrix(Cr_dct8, 8, 8, 8)
     
 
@@ -405,21 +405,21 @@ def encoder(img):
     Cbb_DPCM = dpcm_encode(Cbb_Q)
     Crb_DPCM = dpcm_encode(Crb_Q)
     
-    print("Matriz Y antes de DPCM:\n" ,Yb_Q)
+    print("Matriz Y antes de DPCM:\n" )
     showSubMatrix(Yb_Q, 8, 8, 8)
-    print("Matriz Y depois de DPCM:\n" ,Yb_DPCM)
+    print("Matriz Y depois de DPCM:\n" )
     showSubMatrix(Yb_DPCM, 8, 8, 8)
     
     
-    print("Matriz Cb antes de DPCM:\n" ,Cbb_Q)
+    print("Matriz Cb antes de DPCM:\n")
     showSubMatrix(Cbb_Q, 8, 8, 8)
-    print("Matriz Cb depois de DPCM:\n" ,Cbb_DPCM)
+    print("Matriz Cb depois de DPCM:\n" )
     showSubMatrix(Cbb_DPCM, 8, 8, 8)
    
 
-    print("Matriz Cr antes de DPCM:\n" ,Crb_Q)
+    print("Matriz Cr antes de DPCM:\n")
     showSubMatrix(Crb_Q, 8, 8, 8)
-    print("Matriz Cr depois de DPCM:\n" ,Crb_DPCM)
+    print("Matriz Cr depois de DPCM:\n")
     showSubMatrix(Crb_DPCM, 8, 8, 8)
     
     
@@ -441,23 +441,23 @@ def encoder(img):
 
 def decoder(Y, Cb, Cr):
     Y_Q = dpcm_decode(Y)
-    print("Matriz Y depois de DPCM inversa:\n" ,Y_Q)
+    print("Matriz Y depois de DPCM inversa:\n")
     showSubMatrix(Y_Q, 8, 8, 8)
     Cb_Q = dpcm_decode(Cb)
-    print("Matriz Cb depois de DPCM inversa:\n" ,Cb_Q)
+    print("Matriz Cb depois de DPCM inversa:\n")
     showSubMatrix(Cb_Q, 8, 8, 8)
     Cr_Q = dpcm_decode(Cr)
-    print("Matriz Cr depois de DPCM inversa:\n" ,Cr_Q)
+    print("Matriz Cr depois de DPCM inversa:\n")
     showSubMatrix(Cr_Q, 8, 8, 8)
     Y_d, Cb_d, Cr_d = dct_dequantize(Y_Q,Cb_Q,Cr_Q)
     print("Matriz Y depois de dequantize:\n" ,Y_d)
     showSubMatrix(Y_d, 8, 8, 8)
     Y, Cb, Cr = dct_inv8(Y_d, Cb_d, Cr_d)
-    print("Matriz Y depois de DCT8 inversa:\n" ,Y)
+    print("Matriz Y depois de DCT8 inversa:\n")
     showSubMatrix(Y, 8, 8, 8)
-    print("Matriz Cb depois de DCT8 inversa:\n" ,Cb)
+    print("Matriz Cb depois de DCT8 inversa:\n")
     showSubMatrix(Cb, 8, 8, 8)
-    print("Matriz Cr depois de DCT8 inversa:\n" ,Cr)
+    print("Matriz Cr depois de DCT8 inversa:\n")
     showSubMatrix(Cr, 8, 8, 8)
     imgRec = upsampling(Y, Cb, Cr)
     print("Matriz canal Cb upsampling:\n")
