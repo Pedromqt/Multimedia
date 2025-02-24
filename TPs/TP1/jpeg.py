@@ -131,35 +131,36 @@ def dpcm_decode(diff):
                 coef_dc[i][j] = coef_dc[i][j-8] + diff[i][j]
     return coef_dc
 
+
 def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
-    global QY,QCbCr
+    global QY, QCbCr
     h, w = Y_dct.shape
     h_c, w_c = Cb_dct.shape
-    if(Qualidade >= 50):
-        FatorEscala = (100-Qualidade)/50
+
+    if Qualidade >= 50:
+        FatorEscala = (100 - Qualidade) / 50
     else:
-        FatorEscala = 50/Qualidade
+        FatorEscala = 50 / Qualidade
     
-    
-    QY = np.clip(np.round(QY*FatorEscala), 1, 255).astype(np.uint8)
-    QCbCr = np.clip(np.round(QCbCr*FatorEscala), 1, 255).astype(np.uint8)
   
+    QY = np.clip(np.round(QY * FatorEscala), 1, 255).astype(np.uint8)
+    QCbCr = np.clip(np.round(QCbCr * FatorEscala), 1, 255).astype(np.uint8)
+  
+   
+    Yb_Q = np.zeros_like(Y_dct, dtype=np.float32)
+    for i in range(0, h, 8):  
+        for j in range(0, w, 8): 
+            Yb_Q[i:i+8, j:j+8] = np.round(Y_dct[i:i+8, j:j+8] / QY).astype(np.float32)
 
-    Y_dct_reshaped = Y_dct.reshape(h // 8, 8, w // 8, 8)
-    Cb_dct_reshaped = Cb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
-    Cr_dct_reshaped = Cr_dct.reshape(h_c // 8, 8, w_c // 8, 8)
-
-    Yb_Q = np.round(Y_dct_reshaped / QY[np.newaxis, :, np.newaxis, :]).astype(np.float32)
-    Cbb_Q = np.round(Cb_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
-    Crb_Q = np.round(Cr_dct_reshaped / QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
-    
-    Yb_Q = Yb_Q.reshape(h, w)
-    Cbb_Q = Cbb_Q.reshape(h_c, w_c)
-    Crb_Q = Crb_Q.reshape(h_c, w_c)
+    Cbb_Q = np.zeros_like(Cb_dct, dtype=np.float32)
+    Crb_Q = np.zeros_like(Cr_dct, dtype=np.float32)
+    for i in range(0, h_c, 8):
+        for j in range(0, w_c, 8):
+            Cbb_Q[i:i+8, j:j+8] = np.round(Cb_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
+            Crb_Q[i:i+8, j:j+8] = np.round(Cr_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
     
     print("Matriz Yb_Q quantizada: \n")
     showSubMatrix(Yb_Q, 8, 8, 8)
-    
     showImgLog(Yb_Q, "Yb_Q", cm_grey)
     showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
     showImgLog(Crb_Q, "Crb_Q", cm_grey)
@@ -167,23 +168,24 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     return Yb_Q, Cbb_Q, Crb_Q
 
 
+
 def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     h, w = Yb_dct.shape
     h_c, w_c = Cbb_dct.shape
-    
-    Yb_dct_reshaped = Yb_dct.reshape(h // 8, 8, w // 8, 8)
-    Cbb_dct_reshaped = Cbb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
-    Crb_dct_reshaped = Crb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
+   
+    Yb_Q = np.zeros_like(Yb_dct, dtype=np.float32)
+    for i in range(0, h, 8):  
+        for j in range(0, w, 8): 
+            Yb_Q[i:i+8, j:j+8] = np.round(Yb_dct[i:i+8, j:j+8] * QY).astype(np.float32)
 
-    Y_dct = np.round(Yb_dct_reshaped * QY[np.newaxis, :, np.newaxis, :]).astype(np.float32)
-    Cb_dct = np.round(Cbb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
-    Cr_dct = np.round(Crb_dct_reshaped * QCbCr[np.newaxis, :,np.newaxis, :]).astype(np.float32)
-    
-    Y_dct = Y_dct.reshape(h, w)
-    Cb_dct = Cb_dct.reshape(h_c, w_c)
-    Cr_dct = Cr_dct.reshape(h_c, w_c)
-    
-    return Y_dct, Cb_dct, Cr_dct
+    Cbb_Q = np.zeros_like(Cbb_dct, dtype=np.float32)
+    Crb_Q = np.zeros_like(Crb_dct, dtype=np.float32)
+    for i in range(0, h_c, 8):
+        for j in range(0, w_c, 8):
+            Cbb_Q[i:i+8, j:j+8] = np.round(Cbb_dct[i:i+8, j:j+8] * QCbCr).astype(np.float32)
+            Crb_Q[i:i+8, j:j+8] = np.round(Crb_dct[i:i+8, j:j+8] * QCbCr).astype(np.float32)
+        
+    return Yb_Q, Cbb_Q, Crb_Q
 
 
 def dct_calc_blocks(channel, number_blocks):
@@ -395,7 +397,7 @@ def encoder(img):
     showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
     showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 100)
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
 
     
     Yb_DPCM = dpcm_encode(Yb_Q)
