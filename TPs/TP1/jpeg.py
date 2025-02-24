@@ -469,7 +469,7 @@ def main():
     img = plt.imread(fName)
     global nl,nc
     nl,nc,_= img.shape
-    showImg(img,fName)
+    showImg(img,"Imagem Original")
     Y,Cb,Cr = encoder(img)
     imgRec = decoder(Y,Cb,Cr)
     showImg(imgRec,"Imagem Reconstruida")
