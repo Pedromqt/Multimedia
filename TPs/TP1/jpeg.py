@@ -202,7 +202,7 @@ def dct_calc_blocks(channel, number_blocks):
     for i in range(0, h, number_blocks):
         for j in range(0, w, number_blocks):
             block = channel[i:i+number_blocks, j:j+number_blocks]
-            block_dct = scipy.fftpack.dct(scipy.fftpack.dct(block, axis=0, norm="ortho"), axis=1, norm="ortho")
+            block_dct = scipy.fftpack.dct(scipy.fftpack.dct(block, norm="ortho").T, norm="ortho").T
             channel_dct[i:i+number_blocks, j:j+number_blocks] = block_dct
 
     return channel_dct
@@ -216,7 +216,7 @@ def dct_inv_blocks(channel_dct, number_blocks):
     for i in range(0, h, number_blocks):
         for j in range(0, w, number_blocks):
             block = channel_dct[i:i+number_blocks, j:j+number_blocks]
-            block_idct = scipy.fftpack.idct(scipy.fftpack.idct(block, axis=0, norm="ortho"), axis=1, norm="ortho")
+            block_idct = scipy.fftpack.idct(scipy.fftpack.idct(block.T, norm="ortho").T, norm="ortho")
             channel_idct[i:i+number_blocks, j:j+number_blocks] = block_idct
 
     
