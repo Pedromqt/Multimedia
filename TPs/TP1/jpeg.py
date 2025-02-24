@@ -139,12 +139,11 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
         FatorEscala = (100-Qualidade)/50
     else:
         FatorEscala = 50/Qualidade
-    if(FatorEscala == 0):
-        QY = np.ones((8,8))
-        QCbCr = np.ones((8,8))
-    else:
-        QY = np.round(QY*FatorEscala).astype(np.float32)
-        QCbCr = np.round(QCbCr*FatorEscala).astype(np.float32)
+    
+    
+    QY = np.clip(np.round(QY*FatorEscala), 1, 255).astype(np.uint8)
+    QCbCr = np.clip(np.round(QCbCr*FatorEscala), 1, 255).astype(np.uint8)
+  
 
     Y_dct_reshaped = Y_dct.reshape(h // 8, 8, w // 8, 8)
     Cb_dct_reshaped = Cb_dct.reshape(h_c // 8, 8, w_c // 8, 8)
@@ -396,7 +395,7 @@ def encoder(img):
     showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
     showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 100)
 
     
     Yb_DPCM = dpcm_encode(Yb_Q)
