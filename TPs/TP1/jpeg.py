@@ -398,8 +398,6 @@ def encoder(img):
     
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
 
-    print("Matriz Y depois aaaaaaaaaade qunat:\n")
-    showSubMatrix(Yb_Q, 8, 8, 8) 
     
     Yb_DPCM = dpcm_encode(Yb_Q)
     Cbb_DPCM = dpcm_encode(Cbb_Q)
