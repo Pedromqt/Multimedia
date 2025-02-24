@@ -297,6 +297,26 @@ def remove_YCbCr(img):
     img = np.clip(img, 0, 255).astype(np.uint8)
     return img
 
+def metricas(img,imgRec):
+    img=img.astype(np.uint16)
+    imgRec=imgRec.astype(np.uint16)
+    mse = np.sum((img-imgRec)**2)/ (img.shape[0]* img.shape[1])
+    rmse = np.sqrt(mse)
+    p = np.sum(img **2)/(img.shape[0]*img.shape[1])
+    snr=10*np.log10(p/mse)
+    psnr=10*np.log10((np.max(img)**2)/mse)
+    Y,Cb,Cr = YCbCr(img)
+    Y_r,Cb_r,Cr_r = YCbCr(imgRec)
+    dif_max = np.max(np.abs(Y-Y_r))
+    dif_mean = np.mean(np.abs(Y-Y_r))
+    print("MSE: ",mse)
+    print("RMSE ",rmse)
+    print("SNR: ",snr)
+    print("PSNR: ",psnr)
+    print("MAX Y: ",dif_max)
+    print("AVG Y: ",dif_mean)
+    return mse, rmse,snr,psnr, dif_max,dif_mean
+
 def encoder(img):
     img = add_padding(img)
     R = img[:,:,0]
@@ -476,6 +496,7 @@ def main():
     showImg(imgRec,"Imagem Reconstruida")
     print("R_decoded:\n")
     showSubMatrix(imgRec[:,:,0], 8, 8, 8)
+    metricas(img, imgRec)
 
 if __name__ == "__main__":
     main()

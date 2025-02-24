@@ -56,3 +56,5 @@ usar np.round 256.8 -> 257 e ao passar para uint8 fica 1, logo temos de fazer cl
 
 -> alinea 10 -> metricas de distorçao e de erros
 -> As de erro devem ser baixas e as de racio sinal-ruido altas
+-> mean square error -> np.sum(Imagem original - reconstrida (subtracao direta) ** 2) / (num_linhas*num_colunas)
+-> As imagens tem de ser convertidas andtes de se fazer o quadrado senao dá overflow do uint8 (converter para uint16 ou 32)
