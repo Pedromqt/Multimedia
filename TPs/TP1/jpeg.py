@@ -66,6 +66,8 @@ def showSubMatrix(img,i,j,dim):
         
 def downsampling(Y,Cb,Cr):
     Y_d = Y
+    print("aquiiiiii\n")
+    showSubMatrix(Cb,8,8,8)
     Cb_dA = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     Cr_dA = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     erroA = np.mean(np.abs(Cb_dA[8:16,8:16] - Cb_Down))
@@ -302,8 +304,8 @@ def remove_YCbCr(img):
     return img
 
 def metricas(img,imgRec):
-    img=img.astype(np.uint16)
-    imgRec=imgRec.astype(np.uint16)
+    img=img.astype(np.float32)
+    imgRec=imgRec.astype(np.float32)
     mse = np.sum((img-imgRec)**2)/ (img.shape[0]* img.shape[1])
     rmse = np.sqrt(mse)
     p = np.sum(img **2)/(img.shape[0]*img.shape[1])
@@ -473,7 +475,7 @@ def decoder(Y, Cb, Cr):
     print("Matriz Cr depois de DPCM inversa:\n")
     showSubMatrix(Cr_Q, 8, 8, 8)
     Y_d, Cb_d, Cr_d = dct_dequantize(Y_Q,Cb_Q,Cr_Q)
-    print("Matriz Y depois de dequantize:\n" ,Y_d)
+    print("Matriz Y depois de dequantize:\n")
     showSubMatrix(Y_d, 8, 8, 8)
     Y, Cb, Cr = dct_inv8(Y_d, Cb_d, Cr_d)
     print("Matriz Y depois de DCT8 inversa:\n")
