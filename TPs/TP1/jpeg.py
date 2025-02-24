@@ -145,7 +145,9 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
   
     QY = np.clip(np.round(QY * FatorEscala), 1, 255).astype(np.uint8)
     QCbCr = np.clip(np.round(QCbCr * FatorEscala), 1, 255).astype(np.uint8)
-  
+    
+    print("Matriz QY:\n")
+    print(QY)
    
     Yb_Q = np.zeros_like(Y_dct, dtype=np.float32)
     for i in range(0, h, 8):  
@@ -158,6 +160,8 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
         for j in range(0, w_c, 8):
             Cbb_Q[i:i+8, j:j+8] = np.round(Cb_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
             Crb_Q[i:i+8, j:j+8] = np.round(Cr_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
+
+    
     
     print("Matriz Yb_Q quantizada: \n")
     showSubMatrix(Yb_Q, 8, 8, 8)
