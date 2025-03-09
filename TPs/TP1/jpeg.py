@@ -68,29 +68,22 @@ def showSubMatrix(img,i,j,dim):
         
 def downsampling(Y,Cb,Cr):
     Y_d = Y
-    print("aquiiiiii\n")
     showSubMatrix(Cb,8,8,8)
     Cb_dA = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     Cr_dA = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_AREA)
     erroA = np.mean(np.abs(Cb_dA[8:16,8:16] - Cb_Down))
     print("Matriz canal Cb Interpolacao Area :\n")
     showSubMatrix(Cb_dA,8,8,8)
-    print("Erro comparardo com a Matriz Teorica :\n")
-    print(erroA)
     Cb_dN = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     Cr_dN = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
     erroN = np.mean(np.abs(Cb_dN[8:16,8:16] - Cb_Down))
     print("Matriz canal Cb Interpolacao Nearest :\n")
     showSubMatrix(Cb_dN,8,8,8)
-    print("Erro comparardo com a Matriz Teorica :\n")
-    print(erroN)
     Cb_dL = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_LINEAR)
     Cr_dL = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_LINEAR)
     erroL = np.mean(np.abs(Cb_dL[8:16,8:16] - Cb_Down))
     print("Matriz canal Cb Interpolacao Linear :\n")
     showSubMatrix(Cb_dL,8,8,8)
-    print("Erro comparardo com a Matriz Teorica :\n")
-    print(erroL)
     Cb_dC = cv2.resize(Cb, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC)
     Cr_dC = cv2.resize(Cr, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC)
     erroC = np.mean(np.abs(Cb_dC[8:16,8:16] - Cb_Down))
@@ -511,6 +504,7 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        metricas(img, imgRec)
 
     showImg(img1,"Imagem Original")
 
@@ -520,6 +514,7 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        metricas(img1, imgRec)
 
     showImg(img2,"Imagem Original")
 
@@ -529,10 +524,11 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        metricas(img2, imgRec)
 
     print("R_decoded:\n")
     showSubMatrix(imgRec[:,:,0], 8, 8, 8)
-    metricas(img, imgRec)
+    
 
 if __name__ == "__main__":
     main()
