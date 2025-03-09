@@ -40,6 +40,8 @@ cm_green = clr.LinearSegmentedColormap.from_list("green",[(0,0,0),(0,1,0)], N=25
 cm_blue = clr.LinearSegmentedColormap.from_list("blue",[(0,0,0),(0,0,1)], N=256)
 cm_grey = clr.LinearSegmentedColormap.from_list("grey",[(0,0,0),(1,1,1)], N=256)
 
+
+
 #resize img, none, escala h, escala v, (linear, nearest,cubico, area)
 def showImg(img,title,cmap=None):
     plt.figure()
@@ -167,9 +169,9 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     
     print("Matriz Yb_Q quantizada: \n")
     showSubMatrix(Yb_Q, 8, 8, 8)
-    showImgLog(Yb_Q, "Yb_Q", cm_grey)
-    showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
-    showImgLog(Crb_Q, "Crb_Q", cm_grey)
+    #showImgLog(Yb_Q, "Yb_Q", cm_grey)
+    #showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
+    #showImgLog(Crb_Q, "Crb_Q", cm_grey)
     
     return Yb_Q, Cbb_Q, Crb_Q
 
@@ -250,9 +252,9 @@ def dct_calc(Y_d, Cb_d, Cr_d):
     Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr_d, norm="ortho").T, norm="ortho").T
     
     showSubMatrix(Cb_d, 8, 8, 8)
-    showImgLog(Y_dct, "Y_DCT", cm_grey)
-    showImgLog(Cb_dct, "Cb_DCT", cm_grey)
-    showImgLog(Cr_dct, "Cr_DCT", cm_grey)
+    #showImgLog(Y_dct, "Y_DCT", cm_grey)
+    #showImgLog(Cb_dct, "Cb_DCT", cm_grey)
+    #showImgLog(Cr_dct, "Cr_DCT", cm_grey)
     return Y_dct, Cb_dct, Cr_dct
 
 
@@ -328,17 +330,17 @@ def encoder(img):
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    #showImg(img,"Imagem com padding")
-    #showImg(R,"Red",cm_red)
-    #showImg(G,"Green",cm_green)
-    #showImg(B,"Blue",cm_blue) 
+    ##showImg(img,"Imagem com padding")
+    ##showImg(R,"Red",cm_red)
+    ##showImg(G,"Green",cm_green)
+    ##showImg(B,"Blue",cm_blue) 
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
 
-    #showImg(Y,"Y",cm_grey)
-    #showImg(Cb,"Cb",cm_grey)
-    #showImg(Cr,"Cr",cm_grey)
+    ##showImg(Y,"Y",cm_grey)
+    ##showImg(Cb,"Cb",cm_grey)
+    ##showImg(Cr,"Cr",cm_grey)
     global fx
     global fy
     fx = 0.5
@@ -356,16 +358,16 @@ def encoder(img):
     print(Cr2.shape[0], Cr2.shape[1])
     print("Matriz canal Cr :\n")
     print(Cr2)
-    showImg(Y2,"Y downsampling 4:2:0",cm_grey)
-    showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
-    showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
+   # showImg(Y2,"Y downsampling 4:2:0",cm_grey)
+   # showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
+   # showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
     Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
     
-    showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
-    showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
-    showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
+   # showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
+   # showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
+   # showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
     print("Tamanho canal Y com downsampling 4:2:2")
     print(Y.shape[0], Y.shape[1])
     print("Matriz canal Y :\n")
@@ -419,11 +421,12 @@ def encoder(img):
     showSubMatrix(Cr_dct8, 8, 8, 8)
     
 
-    showImgLog(Y_dct8, "Yb_DCT", cm_grey)
-    showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
-    showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
+    #showImgLog(Y_dct8, "Yb_DCT", cm_grey)
+    #showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
+    #showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
-    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, 75)
+    
+    Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, qualidade)
 
     
     Yb_DPCM = dpcm_encode(Yb_Q)
@@ -448,14 +451,14 @@ def encoder(img):
     showSubMatrix(Crb_DPCM, 8, 8, 8)
     
     
-    showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
-    showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
-    showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
+   # showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
+    #showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
+    #showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
     
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
-    #showImg(Y,"Y downsampling 4:2:0",cm_grey)
-    #showImg(Cb,"Cb downsampling 4:2:0",cm_grey)
-    #showImg(Cr,"Cr downsampling 4:2:0",cm_grey)
+    ##showImg(Y,"Y downsampling 4:2:0",cm_grey)
+    ##showImg(Cb,"Cb downsampling 4:2:0",cm_grey)
+    ##showImg(Cr,"Cr downsampling 4:2:0",cm_grey)
     #print("------------")
     #print("Matriz Y")
     #showSubMatrix(Y,8,8,8)
@@ -493,13 +496,40 @@ def decoder(Y, Cb, Cr):
 
 def main():
     fName = "./imagens/airport.bmp"
+    fName1 = "./imagens/geometric.bmp"
+    fName2 = "./imagens/nature.bmp"
     img = plt.imread(fName)
-    global nl,nc
-    nl,nc,_= img.shape
+    img1 = plt.imread(fName1)
+    img2 = plt.imread(fName2)
+    global nl,nc, qualidade
+    qualidadeArray = [10,25,50,75,100]
     showImg(img,"Imagem Original")
-    Y,Cb,Cr = encoder(img)
-    imgRec = decoder(Y,Cb,Cr)
-    showImg(imgRec,"Imagem Reconstruida")
+
+    for qualidade in qualidadeArray:
+        img_copy = img.copy()
+        nl,nc,_= img.shape
+        Y, Cb, Cr = encoder(img_copy)
+        imgRec = decoder(Y, Cb, Cr)
+        showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+
+    showImg(img1,"Imagem Original")
+
+    for qualidade in qualidadeArray:
+        img_copy = img1.copy()
+        nl,nc,_= img1.shape  
+        Y, Cb, Cr = encoder(img_copy)
+        imgRec = decoder(Y, Cb, Cr)
+        showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+
+    showImg(img2,"Imagem Original")
+
+    for qualidade in qualidadeArray:
+        img_copy = img2.copy()
+        nl,nc,_= img2.shape  
+        Y, Cb, Cr = encoder(img_copy)
+        imgRec = decoder(Y, Cb, Cr)
+        showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+
     print("R_decoded:\n")
     showSubMatrix(imgRec[:,:,0], 8, 8, 8)
     metricas(img, imgRec)
