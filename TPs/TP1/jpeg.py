@@ -318,6 +318,12 @@ def metricas(img,imgRec):
     print("AVG Y: ",dif_mean)
     return mse, rmse,snr,psnr, dif_max,dif_mean
 
+def ImgDif(img,imgRec):
+    Y,Cb,Cr = YCbCr(img)
+    Y_r,Cb_r,Cr_r = YCbCr(imgRec)
+    dif = Y.astype(np.float32) - Y_r.astype(np.float32)
+    showImg(dif, "Imagem da diferença", cm_grey)
+
 def encoder(img):
     img = add_padding(img)
     R = img[:,:,0]
@@ -504,6 +510,7 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        ImgDif(img,imgRec)
         metricas(img, imgRec)
 
     showImg(img1,"Imagem Original")
@@ -514,6 +521,7 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        ImgDif(img1,imgRec)
         metricas(img1, imgRec)
 
     showImg(img2,"Imagem Original")
@@ -524,6 +532,7 @@ def main():
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
+        ImgDif(img2,imgRec)
         metricas(img2, imgRec)
 
     print("R_decoded:\n")
