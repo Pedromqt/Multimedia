@@ -130,7 +130,10 @@ def dpcm_decode(diff):
 
 
 def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
-    global QY, QCbCr
+    global QY_atual 
+    QY_atual = QY.copy()
+    global QCbCr_atual
+    QCbCr_atual = QCbCr.copy()
     h, w = Y_dct.shape
     h_c, w_c = Cb_dct.shape
 
@@ -140,23 +143,23 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
         FatorEscala = 50 / Qualidade
     
   
-    QY = np.clip(np.round(QY * FatorEscala), 1, 255).astype(np.uint8)
-    QCbCr = np.clip(np.round(QCbCr * FatorEscala), 1, 255).astype(np.uint8)
+    QY_atual = np.clip(np.round(QY * FatorEscala), 1, 255).astype(np.uint8)
+    QCbCr_atual = np.clip(np.round(QCbCr * FatorEscala), 1, 255).astype(np.uint8)
     
     print("Matriz QY:\n")
-    print(QY)
+    print(QY_atual)
    
     Yb_Q = np.zeros_like(Y_dct, dtype=np.float32)
     for i in range(0, h, 8):  
         for j in range(0, w, 8): 
-            Yb_Q[i:i+8, j:j+8] = np.round(Y_dct[i:i+8, j:j+8] / QY).astype(np.float32)
+            Yb_Q[i:i+8, j:j+8] = np.round(Y_dct[i:i+8, j:j+8] / QY_atual).astype(np.float32)
 
     Cbb_Q = np.zeros_like(Cb_dct, dtype=np.float32)
     Crb_Q = np.zeros_like(Cr_dct, dtype=np.float32)
     for i in range(0, h_c, 8):
         for j in range(0, w_c, 8):
-            Cbb_Q[i:i+8, j:j+8] = np.round(Cb_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
-            Crb_Q[i:i+8, j:j+8] = np.round(Cr_dct[i:i+8, j:j+8] / QCbCr).astype(np.float32)
+            Cbb_Q[i:i+8, j:j+8] = np.round(Cb_dct[i:i+8, j:j+8] / QCbCr_atual).astype(np.float32)
+            Crb_Q[i:i+8, j:j+8] = np.round(Cr_dct[i:i+8, j:j+8] / QCbCr_atual).astype(np.float32)
 
     
     
@@ -177,14 +180,14 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     Yb_Q = np.zeros_like(Yb_dct, dtype=np.float32)
     for i in range(0, h, 8):  
         for j in range(0, w, 8): 
-            Yb_Q[i:i+8, j:j+8] = np.round(Yb_dct[i:i+8, j:j+8] * QY).astype(np.float32)
+            Yb_Q[i:i+8, j:j+8] = np.round(Yb_dct[i:i+8, j:j+8] * QY_atual).astype(np.float32)
 
     Cbb_Q = np.zeros_like(Cbb_dct, dtype=np.float32)
     Crb_Q = np.zeros_like(Crb_dct, dtype=np.float32)
     for i in range(0, h_c, 8):
         for j in range(0, w_c, 8):
-            Cbb_Q[i:i+8, j:j+8] = np.round(Cbb_dct[i:i+8, j:j+8] * QCbCr).astype(np.float32)
-            Crb_Q[i:i+8, j:j+8] = np.round(Crb_dct[i:i+8, j:j+8] * QCbCr).astype(np.float32)
+            Cbb_Q[i:i+8, j:j+8] = np.round(Cbb_dct[i:i+8, j:j+8] * QCbCr_atual).astype(np.float32)
+            Crb_Q[i:i+8, j:j+8] = np.round(Crb_dct[i:i+8, j:j+8] * QCbCr_atual).astype(np.float32)
         
     return Yb_Q, Cbb_Q, Crb_Q
 
