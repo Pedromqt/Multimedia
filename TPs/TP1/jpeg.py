@@ -324,8 +324,8 @@ def metricas(img,imgRec):
 def ImgDif(img,imgRec):
     Y,Cb,Cr = YCbCr(img)
     Y_r,Cb_r,Cr_r = YCbCr(imgRec)
-    dif = Y.astype(np.float32) - Y_r.astype(np.float32)
-    showImg(dif, "Imagem da diferença", cm_grey)
+    dif = np.abs(Y - Y_r)
+    showImgLog(dif, "Imagem da diferença", cm_grey)
 
 def encoder(img):
     img = add_padding(img)
