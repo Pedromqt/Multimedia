@@ -512,9 +512,10 @@ def main():
         nl,nc,_= img.shape
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
+        metricas(img, imgRec)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
         ImgDif(img,imgRec)
-        metricas(img, imgRec)
+        
 
     showImg(img1,"Imagem Original")
 
@@ -523,9 +524,10 @@ def main():
         nl,nc,_= img1.shape  
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
+        metricas(img1, imgRec)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
         ImgDif(img1,imgRec)
-        metricas(img1, imgRec)
+        
 
     showImg(img2,"Imagem Original")
 
@@ -534,9 +536,10 @@ def main():
         nl,nc,_= img2.shape  
         Y, Cb, Cr = encoder(img_copy)
         imgRec = decoder(Y, Cb, Cr)
+        metricas(img2, imgRec)
         showImg(imgRec, f"Imagem Reconstruida com qualidade {qualidade}")
         ImgDif(img2,imgRec)
-        metricas(img2, imgRec)
+        
 
     print("R_decoded:\n")
     showSubMatrix(imgRec[:,:,0], 8, 8, 8)
