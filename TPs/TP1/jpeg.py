@@ -165,9 +165,9 @@ def dct_quantize(Y_dct, Cb_dct, Cr_dct, Qualidade):
     
     print("Matriz Yb_Q quantizada: \n")
     showSubMatrix(Yb_Q, 8, 8, 8)
-    #showImgLog(Yb_Q, "Yb_Q", cm_grey)
-    #showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
-    #showImgLog(Crb_Q, "Crb_Q", cm_grey)
+    showImgLog(Yb_Q, "Yb_Q", cm_grey)
+    showImgLog(Cbb_Q, "Cbb_Q", cm_grey)
+    showImgLog(Crb_Q, "Crb_Q", cm_grey)
     
     return Yb_Q, Cbb_Q, Crb_Q
 
@@ -192,17 +192,20 @@ def dct_dequantize(Yb_dct,Cbb_dct,Crb_dct):
     return Yb_Q, Cbb_Q, Crb_Q
 
 
+import numpy as np
+import scipy.fftpack
+
 def dct_calc_blocks(channel, number_blocks):
-    
     h, w = channel.shape
     channel_dct = np.zeros_like(channel, dtype=np.float32)
 
-    
     if number_blocks == 64 and w % 64 != 0:
         last_column = channel[:, -1:]
-        channel = np.hstack((channel, np.tile(last_column, (1, 32))))
+        pad_width = (64 - (w % 64)) % 64
+        channel = np.hstack((channel, np.tile(last_column, (1, pad_width))))
+        h, w = channel.shape
+        channel_dct = np.zeros_like(channel, dtype=np.float32)
 
-    
     for i in range(0, h, number_blocks):
         for j in range(0, w, number_blocks):
             block = channel[i:i+number_blocks, j:j+number_blocks]
@@ -210,6 +213,7 @@ def dct_calc_blocks(channel, number_blocks):
             channel_dct[i:i+number_blocks, j:j+number_blocks] = block_dct
 
     return channel_dct
+
 
 
 def dct_inv_blocks(channel_dct, number_blocks):
@@ -248,9 +252,9 @@ def dct_calc(Y_d, Cb_d, Cr_d):
     Cr_dct = scipy.fftpack.dct(scipy.fftpack.dct(Cr_d, norm="ortho").T, norm="ortho").T
     
     showSubMatrix(Cb_d, 8, 8, 8)
-    #showImgLog(Y_dct, "Y_DCT", cm_grey)
-    #showImgLog(Cb_dct, "Cb_DCT", cm_grey)
-    #showImgLog(Cr_dct, "Cr_DCT", cm_grey)
+    showImgLog(Y_dct, "Y_DCT", cm_grey)
+    showImgLog(Cb_dct, "Cb_DCT", cm_grey)
+    showImgLog(Cr_dct, "Cr_DCT", cm_grey)
     return Y_dct, Cb_dct, Cr_dct
 
 
@@ -332,17 +336,17 @@ def encoder(img):
     R = img[:,:,0]
     G = img[:,:,1]
     B = img[:,:,2]
-    ##showImg(img,"Imagem com padding")
-    ##showImg(R,"Red",cm_red)
-    ##showImg(G,"Green",cm_green)
-    ##showImg(B,"Blue",cm_blue) 
+    showImg(img,"Imagem com padding")
+    showImg(R,"Red",cm_red)
+    showImg(G,"Green",cm_green)
+    showImg(B,"Blue",cm_blue) 
     #print("Matriz R")  
     #showSubMatrix(R,8,8,8)
     Y,Cb,Cr = YCbCr(img)
 
-    ##showImg(Y,"Y",cm_grey)
-    ##showImg(Cb,"Cb",cm_grey)
-    ##showImg(Cr,"Cr",cm_grey)
+    showImg(Y,"Y",cm_grey)
+    showImg(Cb,"Cb",cm_grey)
+    showImg(Cr,"Cr",cm_grey)
     global fx
     global fy
     fx = 0.5
@@ -360,16 +364,16 @@ def encoder(img):
     print(Cr2.shape[0], Cr2.shape[1])
     print("Matriz canal Cr :\n")
     print(Cr2)
-   # showImg(Y2,"Y downsampling 4:2:0",cm_grey)
-   # showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
-   # showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
+    showImg(Y2,"Y downsampling 4:2:0",cm_grey)
+    showImg(Cb2,"Cb downsampling 4:2:0",cm_grey)
+    showImg(Cr2,"Cr downsampling 4:2:0",cm_grey)
     fx = 0.5
     fy = 1
     Y_d,Cb_d,Cr_d = downsampling(Y,Cb,Cr)
     
-   # showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
-   # showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
-   # showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
+    showImg(Y_d,"Y downsampling 4:2:2",cm_grey)
+    showImg(Cb_d,"Cb downsampling 4:2:2",cm_grey)
+    showImg(Cr_d,"Cr downsampling 4:2:2",cm_grey)
     print("Tamanho canal Y com downsampling 4:2:2")
     print(Y.shape[0], Y.shape[1])
     print("Matriz canal Y :\n")
@@ -422,11 +426,18 @@ def encoder(img):
     print("Matriz Cr depois de DCT8:\n" )
     showSubMatrix(Cr_dct8, 8, 8, 8)
     
+    Y_dct64 = dct_calc_blocks(Y_d,64)
+    Cb_dct64 = dct_calc_blocks(Cb_d,64)
+    Cr_dct64 = dct_calc_blocks(Cr_d,64)
 
-    #showImgLog(Y_dct8, "Yb_DCT", cm_grey)
-    #showImgLog(Cb_dct8, "Cbb_DCT", cm_grey)
-    #showImgLog(Cr_dct8, "Crb_DCT", cm_grey)
     
+
+    showImgLog(Y_dct8, "Yb8_DCT", cm_grey)
+    showImgLog(Cb_dct8, "Cbb8_DCT", cm_grey)
+    showImgLog(Cr_dct8, "Crb8_DCT", cm_grey)
+    showImgLog(Y_dct64, "Yb64_DCT", cm_grey)
+    showImgLog(Cb_dct64, "Cbb64_DCT", cm_grey)
+    showImgLog(Cr_dct64, "Crb64_DCT", cm_grey)
     
     Yb_Q, Cbb_Q, Crb_Q = dct_quantize(Y_dct8, Cb_dct8, Cr_dct8, qualidade)
 
@@ -453,10 +464,10 @@ def encoder(img):
     showSubMatrix(Crb_DPCM, 8, 8, 8)
     
     
-   # showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
-    #showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
-    #showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
-    
+    showImgLog(Yb_DPCM, "Yb_DCPM", cm_grey)
+    showImgLog(Cbb_DPCM, "Cbb_DCPM", cm_grey)
+    showImgLog(Crb_DPCM, "Crb_DCPM", cm_grey)
+
     #Y,Cb,Cr = downsampling(Y,Cb,Cr, 0.5, 0.5)
     ##showImg(Y,"Y downsampling 4:2:0",cm_grey)
     ##showImg(Cb,"Cb downsampling 4:2:0",cm_grey)
