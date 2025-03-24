@@ -1,0 +1,15 @@
+-> Software que ira recomendar musicas de acordo com uma cerat musica como entrada
+-> Nao irá ser perfeito
+->Cada musica vai ter um vetor fv, um vetor numpy e que contera um conjunto de numeros que caracterizam cada musica
+-> iremos calcular as distancias netre os vetores da bd e da musica de entrada para recomendar as 20 mais proximas
+-> temos de ver se as recomendacoes do Software foram boas ou mas atraves do criterio do grupo em que nos proprios iremos avaliar de 1 a 5 o que achamos da recomendacao do Software
+
+-q1-alegre
+-q2-agressiva
+-q3-depressica
+-q4-relaxada
+
+1.
+
+
+
