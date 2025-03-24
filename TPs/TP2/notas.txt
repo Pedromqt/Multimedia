@@ -9,7 +9,18 @@
 -q3-depressica
 -q4-relaxada
 
-1.
+juntei todas em allsongs, sendo isto a nossa BD
 
-
-
+2.
+->featurs em librosa -> onda sonora com 30 segundos-> fazemos a analise em janelas que tem sobreposicao->janelas pequenas-> vamos extrair atributos->o tamnho da janela e sobreposicao sao parametros de librosa.feature
+->compactar a informacao -> max, min, media, mediana, kurtosis, std, assimetria
+-> usar yin em vez do pyin para F0
+-> os mfcc retorna 40 valores em vez de so 1, no argumento n_mfcc tem de ser = 13
+-> com as estatisticas fica 13x7 , depois temos de fazer np.flatten para termos um unico vetor hozintal 1x91
+-> spectral contrast tambem é outra excecao e portanto de temos de fazer o mesmo, nao é preciso mudar argumentos.
+-> tempo dá um unico valor(beats per minute)
+-> yin , temos de especificar freq minima e freq max , freq minima == 20hz e freq_max == 22050/2 == 11025
+-> f0->librosa.yin(y,f_min,f_max)-> quando nao encontra uma frequencia fundamental devolve o maxima
+-> f0[f0==fmax]==0, temos de tranformar pra colmatar a situacao acima
+-> extrair feature pela ordem e tambem calcualr estatisticas pela ordem que esta no enunciado
+-> gravar em ficheiro nao normalizados e normalizados
