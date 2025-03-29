@@ -1,10 +1,10 @@
 Como correr isto
 
-É preciso ter um enveriment setado porque as versoes mais recentes nao suportam librosa
-1.Instalar anaconda
-2.Abrir o conda prompt
-3.conda create -n audio_env python=3.9
-4.conda activate audio_env
+É preciso ter um enviroment setado porque as versoes mais recentes do python nao sao estaveis para o librosa
+1. Instalar anaconda
+2. Abrir o conda prompt
+3. conda create -n audio_env python=3.9
+4. conda activate audio_env
 5. navegar ate lá cd jvaz1/anaconda3/envs/audio_env
 6. mkdir -p audio_env/proj
 7. cd proj
@@ -18,7 +18,7 @@ sempre que se quiser programar tem de se navegar no prompt , dar activate ao env
 
 -> Software que ira recomendar musicas de acordo com uma cerat musica como entrada
 -> Nao irá ser perfeito
-->Cada musica vai ter um vetor fv, um vetor numpy e que contera um conjunto de numeros que caracterizam cada musica
+-> Cada musica vai ter um vetor fv, um vetor numpy e que contera um conjunto de numeros que caracterizam cada musica
 -> iremos calcular as distancias netre os vetores da bd e da musica de entrada para recomendar as 20 mais proximas
 -> temos de ver se as recomendacoes do Software foram boas ou mas atraves do criterio do grupo em que nos proprios iremos avaliar de 1 a 5 o que achamos da recomendacao do Software
 
@@ -30,8 +30,8 @@ sempre que se quiser programar tem de se navegar no prompt , dar activate ao env
 juntei todas em allsongs, sendo isto a nossa BD
 
 2.
-->featurs em librosa -> onda sonora com 30 segundos-> fazemos a analise em janelas que tem sobreposicao->janelas pequenas-> vamos extrair atributos->o tamnho da janela e sobreposicao sao parametros de librosa.feature
-->compactar a informacao -> max, min, media, mediana, kurtosis, std, assimetria
+-> featurs em librosa -> onda sonora com 30 segundos-> fazemos a analise em janelas que tem sobreposicao->janelas pequenas-> vamos extrair atributos->o tamnho da janela e sobreposicao sao parametros de librosa.feature
+-> compactar a informacao -> max, min, media, mediana, kurtosis, std, assimetria
 -> usar yin em vez do pyin para F0
 -> os mfcc retorna 40 valores em vez de so 1, no argumento n_mfcc tem de ser = 13
 -> com as estatisticas fica 13x7 , depois temos de fazer np.flatten para termos um unico vetor hozintal 1x91
