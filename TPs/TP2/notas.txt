@@ -1,3 +1,22 @@
+Como correr isto
+
+É preciso ter um enveriment setado porque as versoes mais recentes nao suportam librosa
+1.Instalar anaconda
+2.Abrir o conda prompt
+3.conda create -n audio_env python=3.9
+4.conda activate audio_env
+5. navegar ate lá cd jvaz1/anaconda3/envs/audio_env
+6. mkdir -p audio_env/proj
+7. cd proj
+8. git clone
+9. pip uninstall -y numba librosa
+10. pip install numba==0.56.4 librosa==0.9.2 
+11. code .
+
+sempre que se quiser programar tem de se navegar no prompt , dar activate ao env e fazer code .
+
+-----------------
+
 -> Software que ira recomendar musicas de acordo com uma cerat musica como entrada
 -> Nao irá ser perfeito
 ->Cada musica vai ter um vetor fv, um vetor numpy e que contera um conjunto de numeros que caracterizam cada musica
