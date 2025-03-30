@@ -97,7 +97,7 @@ if __name__ == "__main__":
     
     #--- Load file
     fName = "Queries/MT0000414517.mp3"
-    our_DB="Queries" 
+    our_DB="Queries" #aqui vai ser allsongs , apenas para testar agora queries
     global sr   
     sr = 22050
     mono = True
