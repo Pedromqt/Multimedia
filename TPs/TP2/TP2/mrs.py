@@ -14,21 +14,39 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import os
 
+
+def normalize_features(features):
+    mins = np.nanmin(features, axis=0)
+    maxs = np.nanmax(features, axis=0)
+    ranges = maxs - mins
+    ranges[ranges == 0] = 1
+    return (features - mins) / ranges
+
+def extract_stats(feature):
+    feature_mean = np.mean(feature, axis=1)
+    feature_std = np.std(feature, axis=1)
+    feature_skewness = stats.skew(feature, axis=1, nan_policy='omit')
+    feature_kurtosis = stats.kurtosis(feature, axis=1, nan_policy='omit')
+    feature_median = np.median(feature, axis=1)
+    feature_min = np.min(feature, axis=1)
+    feature_max = np.max(feature, axis=1)
+    
+    return np.column_stack((feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_min, feature_max))
+
 def extract_features(our_DB):
+    audio_files = sorted(os.listdir(our_DB))
+    all_features = []
+    print(f"{len(audio_files)} arquivos encontrados.")
     audio_files = os.listdir(our_DB)
     f_min = 20
-    f_max = sr // 2
-    all_features = []
-    all_statistics = []
-    
-    print(f"{len(audio_files)} arquivos encontrados.")
-    
+    f_max = 22050 // 2
+
     for i, audio_file in enumerate(audio_files, start=1):
         print(f"Processando {i}/{len(audio_files)}: {audio_file}")
         file_path = os.path.join(our_DB, audio_file)
         
-        y, fs = librosa.load(file_path, sr=sr, mono=True)
-
+        y, sr = librosa.load(file_path, sr=22050, mono=True)
+        
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         spectral_centroid = librosa.feature.spectral_centroid(y=y)
         spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y)
@@ -39,57 +57,39 @@ def extract_features(our_DB):
         f0[f0 == f_max] = 0
         rms = librosa.feature.rms(y=y)
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y)
-
-        onset_env = librosa.onset.onset_strength(y=y)
-        tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env)
-
-        mfcc_stats = np.hstack([
-            np.mean(mfcc, axis=1), np.std(mfcc, axis=1), np.min(mfcc, axis=1),
-            np.median(mfcc, axis=1), np.max(mfcc, axis=1), stats.skew(mfcc, axis=1), stats.kurtosis(mfcc, axis=1)
-        ]).flatten()
-
-        print(f"{mfcc_stats.shape} nahahha")
+        tempo = np.array([librosa.beat.tempo(y=y)[0]])
         
-        spectral_contrast_stats = np.hstack([
-            np.mean(spectral_contrast, axis=1), np.std(spectral_contrast, axis=1), np.min(spectral_contrast, axis=1),
-            np.median(spectral_contrast, axis=1), np.max(spectral_contrast, axis=1), stats.skew(spectral_contrast, axis=1), stats.kurtosis(spectral_contrast, axis=1)
-        ]).flatten()
-
-        other_features = np.hstack([
-            np.mean(spectral_centroid), np.std(spectral_centroid), np.min(spectral_centroid),
-            np.mean(spectral_bandwidth), np.std(spectral_bandwidth), np.min(spectral_bandwidth),
-            np.mean(spectral_flatness), np.std(spectral_flatness), np.min(spectral_flatness),
-            np.mean(spectral_rolloff), np.std(spectral_rolloff), np.min(spectral_rolloff),
-            np.mean(f0), np.std(f0), np.min(f0),
-            np.mean(rms), np.std(rms), np.min(rms),
-            np.mean(zero_crossing_rate), np.std(zero_crossing_rate), np.min(zero_crossing_rate),
-            np.mean(tempo), np.std(tempo), np.min(tempo)
-        ])
-
-        features = np.hstack([mfcc_stats, spectral_contrast_stats, other_features])
-        all_features.append(features)
+        mfcc_stats = extract_stats(mfcc).flatten()
+        spectral_centroid_stats = extract_stats(spectral_centroid)[0, :]
+        spectral_bandwidth_stats = extract_stats(spectral_bandwidth)[0, :]
+        spectral_contrast_stats = extract_stats(spectral_contrast).flatten()
+        spectral_flatness_stats = extract_stats(spectral_flatness)[0, :]
+        spectral_rolloff_stats = extract_stats(spectral_rolloff)[0, :]
+        f0_stats = extract_stats(f0)[0,:]
+        rms_stats = extract_stats(rms)[0, :]
+        zero_crossing_rate_stats = extract_stats(zero_crossing_rate)[0, :]
         
-    
+        music_features = np.concatenate((
+            mfcc_stats,
+            spectral_centroid_stats,
+            spectral_bandwidth_stats,
+            spectral_contrast_stats,
+            spectral_flatness_stats,
+            spectral_rolloff_stats,
+            f0_stats,
+            rms_stats,
+            zero_crossing_rate_stats,
+            tempo
+        ))
+        
+        all_features.append(music_features)
+        
     all_features = np.array(all_features)
-    all_statistics = np.array(all_statistics)
-    
-    min_vals = np.min(all_features, axis=0)
-    max_vals = np.max(all_features, axis=0)
-    
-    range_vals = max_vals - min_vals
-    range_vals[range_vals == 0] = 1
-    all_normalized_features = (all_features - min_vals) / range_vals
+    all_normalized_features = normalize_features(all_features)
     
     output_file = "features_db.csv"
-    save_features_to_file(all_features, min_vals, max_vals, output_file)
-    
-    print(f"Extração e salvamento das features para a base de dados {our_DB} concluído.")
-
-def save_features_to_file(features, min_vals, max_vals, output_file):
-    with open(output_file, 'w') as f:
-        #np.savetxt(f, np.vstack([min_vals, max_vals]), delimiter=",", fmt="%.6f")
-        np.savetxt(f, features, delimiter=",", fmt="%.6f")
-    print(f"Arquivo {output_file} salvo com sucesso!")
+    np.savetxt(output_file, all_features, delimiter=",", fmt="%.6f")
+    print(f"Feito.")
 
 
 if __name__ == "__main__":
