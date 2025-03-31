@@ -29,7 +29,7 @@ sempre que se quiser programar tem de se navegar no prompt , dar activate ao env
 
 juntei todas em allsongs, sendo isto a nossa BD
 
-2.
+2.1.
 -> featurs em librosa -> onda sonora com 30 segundos-> fazemos a analise em janelas que tem sobreposicao->janelas pequenas-> vamos extrair atributos->o tamnho da janela e sobreposicao sao parametros de librosa.feature
 -> compactar a informacao -> max, min, media, mediana, kurtosis, std, assimetria
 -> usar yin em vez do pyin para F0
@@ -42,3 +42,31 @@ juntei todas em allsongs, sendo isto a nossa BD
 -> f0[f0==fmax]==0, temos de tranformar pra colmatar a situacao acima
 -> extrair feature pela ordem e tambem calcualr estatisticas pela ordem que esta no enunciado
 -> gravar em ficheiro nao normalizados e normalizados
+
+2.2
+#w=2048
+#h=512 -> hop size
+
+fazer analise janela a janela
+onda sonora -> divisao em janelas
+
+N=3000 amostras
+load do librosa -> numero de janelas 3000//512 = 5
+1 janela 2048
+2 janela 512-2560
+3 janela 1024-3072
+passa do limite e agora????
+temos de fazer zero padding -> acrescentemos zeros à direita
+resto de 3000/512 = pontos em excesso = 440
+2048-440=1608 -> N passa a ser 4608
+passamos entao a ter 4608/512 = 9
+temos que subtrair 3 -> portanto vamos ter na realidade 6 janelas
+
+cada janela multiplicar pela funcao de janela (janela de hanning)
+depois aplicar a fft, vamos usar a rfft
+depois aplicamos aplicamos a formula do centroide
+
+eliminar os dois primeiros do SClibrosa
+no final comparamos os dois array correlacao e rmse 
+é natural algumas diferencas
+correlacao e desvio
