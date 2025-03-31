@@ -70,3 +70,4 @@ eliminar os dois primeiros do SClibrosa
 no final comparamos os dois array correlacao e rmse 
 é natural algumas diferencas
 correlacao e desvio
+nao fazer divisao por 0 na funcao do SC
