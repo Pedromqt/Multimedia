@@ -9,7 +9,7 @@ Como correr isto
 6. mkdir -p audio_env/proj
 7. cd proj
 8. git clone
-9. ver req.txt e Instalar as cenas de la
+9. ver req.txt e Instalar as cenas de la -> pip install -r req.txt
 10. code .
 
 sempre que se quiser programar tem de se navegar no prompt , dar activate ao env e fazer code .
