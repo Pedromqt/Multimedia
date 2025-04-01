@@ -28,10 +28,11 @@ def extract_stats(feature):
     feature_skewness = stats.skew(feature, axis=1, nan_policy='omit')
     feature_kurtosis = stats.kurtosis(feature, axis=1, nan_policy='omit')
     feature_median = np.median(feature, axis=1)
-    feature_min = np.min(feature, axis=1)
     feature_max = np.max(feature, axis=1)
+    feature_min = np.min(feature, axis=1)
     
-    return np.column_stack((feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_min, feature_max))
+    
+    return np.column_stack((feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_max,feature_min))
 
 def extract_features(our_DB):
     audio_files = sorted(os.listdir(our_DB))
@@ -65,6 +66,7 @@ def extract_features(our_DB):
         spectral_contrast_stats = extract_stats(spectral_contrast).flatten()
         spectral_flatness_stats = extract_stats(spectral_flatness)[0, :]
         spectral_rolloff_stats = extract_stats(spectral_rolloff)[0, :]
+        f0 = np.expand_dims(f0, axis=0)
         f0_stats = extract_stats(f0)[0,:]
         rms_stats = extract_stats(rms)[0, :]
         zero_crossing_rate_stats = extract_stats(zero_crossing_rate)[0, :]
