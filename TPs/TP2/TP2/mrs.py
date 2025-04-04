@@ -38,7 +38,6 @@ def extract_features(our_DB):
     audio_files = sorted(os.listdir(our_DB))
     all_features = []
     print(f"{len(audio_files)} arquivos encontrados.")
-    audio_files = os.listdir(our_DB)
     f_min = 20
     f_max = 22050 // 2
 
@@ -46,7 +45,7 @@ def extract_features(our_DB):
         print(f"Processando {i}/{len(audio_files)}: {audio_file}")
         file_path = os.path.join(our_DB, audio_file)
         
-        y, sr = librosa.load(file_path, sr=22050, mono=True)
+        y, sr = librosa.load(file_path)
         
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         spectral_centroid = librosa.feature.spectral_centroid(y=y)
@@ -54,7 +53,7 @@ def extract_features(our_DB):
         spectral_contrast = librosa.feature.spectral_contrast(y=y)
         spectral_flatness = librosa.feature.spectral_flatness(y=y)
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y)
-        f0 = librosa.yin(y, f_min, f_max)
+        f0 = librosa.yin(y, fmin=f_min, fmax=f_max)
         f0[f0 == f_max] = 0
         rms = librosa.feature.rms(y=y)
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y)
@@ -100,7 +99,6 @@ if __name__ == "__main__":
     #--- Load file
     fName = "Queries/MT0000414517.mp3"
     our_DB="Queries" #aqui vai ser allsongs , apenas para testar agora queries
-    global sr   
     sr = 22050
     mono = True
     warnings.filterwarnings("ignore")
