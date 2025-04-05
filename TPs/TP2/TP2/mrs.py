@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 import os
+import csv
 
 
 def normalize_features(features):
@@ -92,6 +93,35 @@ def extract_features(our_DB):
     np.savetxt(output_file, all_features, delimiter=",", fmt="%.6f")
     print(f"Feito.")
 
+def compare(file1, file2, tolerance=1e-4):
+    differences = []
+    with open(file1, newline='') as f1, open(file2, newline='') as f2:
+        reader1 = csv.reader(f1)
+        reader2 = csv.reader(f2)
+
+        for row_num, (row1, row2) in enumerate(zip(reader1, reader2), start=1):
+            for col_num, (val1, val2) in enumerate(zip(row1, row2), start=1):
+                val1 = val1.strip()
+                val2 = val2.strip()
+                try:
+                    num1 = float(val1)
+                    num2 = float(val2)
+                    if abs(num1 - num2) > tolerance:
+                        differences.append(
+                            f"Linha {row_num}, Coluna {col_num}: {num1} != {num2}"
+                        )
+                except ValueError:
+                    if val1 != val2:
+                        differences.append(
+                            f"Linha {row_num}, Coluna {col_num}: '{val1}' != '{val2}'"
+                        )
+
+    if differences:
+        print("Diferenças encontradas:")
+        for diff in differences:
+            print(diff)
+    else:
+        print("Os arquivos são considerados equivalentes (com tolerância).")
 
 if __name__ == "__main__":
     plt.close('all')
@@ -122,7 +152,8 @@ if __name__ == "__main__":
     fig.colorbar(img, ax=ax, format="%+2.0f dB")
         
     #--- Extract features
-    extract_features(our_DB)    
+    extract_features(our_DB)
+    compare("./features_db.csv","./validacao/notNormFM_Q.csv")    
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
