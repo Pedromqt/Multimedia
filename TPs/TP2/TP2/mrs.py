@@ -101,20 +101,21 @@ def compare(file1, file2, tolerance=1e-4):
 
         for row_num, (row1, row2) in enumerate(zip(reader1, reader2), start=1):
             for col_num, (val1, val2) in enumerate(zip(row1, row2), start=1):
-                val1 = val1.strip()
-                val2 = val2.strip()
-                try:
-                    num1 = float(val1)
-                    num2 = float(val2)
-                    if abs(num1 - num2) > tolerance:
-                        differences.append(
-                            f"Linha {row_num}, Coluna {col_num}: {num1} != {num2}"
-                        )
-                except ValueError:
-                    if val1 != val2:
-                        differences.append(
-                            f"Linha {row_num}, Coluna {col_num}: '{val1}' != '{val2}'"
-                        )
+                #if(col_num >175 and col_num<169): #incluir isto para retirar f0
+                    val1 = val1.strip()
+                    val2 = val2.strip()
+                    try:
+                        num1 = float(val1)
+                        num2 = float(val2)
+                        if abs(num1 - num2) > tolerance:
+                            differences.append(
+                                f"Linha {row_num}, Coluna {col_num}: {num1} != {num2}"
+                            )
+                    except ValueError:
+                        if val1 != val2:
+                            differences.append(
+                                f"Linha {row_num}, Coluna {col_num}: '{val1}' != '{val2}'"
+                            )
 
     if differences:
         print("Diferenças encontradas:")
@@ -153,7 +154,7 @@ if __name__ == "__main__":
         
     #--- Extract features
     extract_features(our_DB)
-    compare("./features_db.csv","./validacao/notNormFM_Q.csv")    
+    compare("./features_db.csv","./validacao/notNormFM_All.csv")    
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
