@@ -16,12 +16,18 @@ import os
 import csv
 
 
-def normalize_features(matrix: np.ndarray) -> np.ndarray:
-    maxs = np.max(matrix, axis = 0)
-    mins = np.min(matrix, axis = 0)
-    ans= np.array(matrix)
-    ans[np.arange(len(matrix)),:] = (ans[np.arange(len(matrix)),: ] - mins)/(maxs-mins)
-    return ans
+def normalize_features(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    maxs = np.max(matrix, axis=0)
+    mins = np.min(matrix, axis=0)
+    
+    # Evita divisão por zero: se max == min, seta o denominador para 1 (ou ignora essa feature)
+    range_ = maxs - mins
+    range_[range_ == 0] = 1.0
+    
+    norm_matrix = (matrix - mins) / range_
+    return norm_matrix, maxs, mins
+
+
 
 def extract_stats(feature):
     feature_mean = np.mean(feature, axis=1)
@@ -33,7 +39,7 @@ def extract_stats(feature):
     feature_min = np.min(feature, axis=1)
     
     
-    return np.column_stack((feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_max,feature_min))
+    return np.column_stack([feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_max,feature_min])
 
 def extract_features(our_DB):
     audio_files = sorted(os.listdir(our_DB))
@@ -87,10 +93,13 @@ def extract_features(our_DB):
         all_features.append(music_features)
         
     all_features = np.array(all_features)
-    all_normalized_features = normalize_features(all_features)
+    all_normalized_features, maxs, mins = normalize_features(all_features)
+    
+    # Empilha os vetores: [min; max; features normalizadas]
+    data = np.vstack([mins, maxs, all_normalized_features])
     
     output_file = "features_db.csv"
-    np.savetxt(output_file, all_features, delimiter=",", fmt="%.6f")
+    np.savetxt(output_file, data, delimiter=",", fmt="%.6f")
     print(f"Feito.")
 
 def compare(file1, file2, tolerance=1e-4):
@@ -101,7 +110,7 @@ def compare(file1, file2, tolerance=1e-4):
 
         for row_num, (row1, row2) in enumerate(zip(reader1, reader2), start=1):
             for col_num, (val1, val2) in enumerate(zip(row1, row2), start=1):
-                #if(col_num >175 and col_num<169): #incluir isto para retirar f0
+                if(col_num >175 and col_num<169): #incluir isto para retirar f0
                     val1 = val1.strip()
                     val2 = val2.strip()
                     try:
@@ -129,7 +138,7 @@ if __name__ == "__main__":
     
     #--- Load file
     fName = "Queries/MT0000414517.mp3"
-    our_DB="Queries" #aqui vai ser allsongs , apenas para testar agora queries
+    our_DB="allsongs" #aqui vai ser allsongs , apenas para testar agora queries
     sr = 22050
     mono = True
     warnings.filterwarnings("ignore")
@@ -154,7 +163,7 @@ if __name__ == "__main__":
         
     #--- Extract features
     extract_features(our_DB)
-    compare("./features_db.csv","./validacao/notNormFM_Q.csv")    
+    compare("./features_db.csv","./validacao/FM_All.csv")    
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
