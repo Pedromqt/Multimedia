@@ -16,12 +16,12 @@ import os
 import csv
 
 
-def normalize_features(features):
-    mins = np.nanmin(features, axis=0)
-    maxs = np.nanmax(features, axis=0)
-    ranges = maxs - mins
-    ranges[ranges == 0] = 1
-    return (features - mins) / ranges
+def normalize_features(matrix: np.ndarray) -> np.ndarray:
+    maxs = np.max(matrix, axis = 0)
+    mins = np.min(matrix, axis = 0)
+    ans= np.array(matrix)
+    ans[np.arange(len(matrix)),:] = (ans[np.arange(len(matrix)),: ] - mins)/(maxs-mins)
+    return ans
 
 def extract_stats(feature):
     feature_mean = np.mean(feature, axis=1)
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         
     #--- Extract features
     extract_features(our_DB)
-    compare("./features_db.csv","./validacao/notNormFM_All.csv")    
+    compare("./features_db.csv","./validacao/notNormFM_Q.csv")    
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
