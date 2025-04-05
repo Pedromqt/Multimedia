@@ -19,8 +19,6 @@ import csv
 def normalize_features(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     maxs = np.max(matrix, axis=0)
     mins = np.min(matrix, axis=0)
-    
-    # Evita divisão por zero: se max == min, seta o denominador para 1 (ou ignora essa feature)
     range_ = maxs - mins
     range_[range_ == 0] = 1.0
     
