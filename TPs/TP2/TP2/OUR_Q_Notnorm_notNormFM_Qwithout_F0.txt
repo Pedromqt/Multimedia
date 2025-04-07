@@ -1,0 +1,1 @@
+Os arquivos são considerados equivalentes (com tolerância).
