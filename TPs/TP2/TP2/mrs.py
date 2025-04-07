@@ -25,8 +25,6 @@ def normalize_features(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.n
     norm_matrix = (matrix - mins) / range_
     return norm_matrix, maxs, mins
 
-
-
 def extract_stats(feature):
     feature_mean = np.mean(feature, axis=1)
     feature_std = np.std(feature, axis=1)
@@ -35,8 +33,6 @@ def extract_stats(feature):
     feature_median = np.median(feature, axis=1)
     feature_max = np.max(feature, axis=1)
     feature_min = np.min(feature, axis=1)
-    
-    
     return np.column_stack([feature_mean, feature_std, feature_skewness, feature_kurtosis, feature_median, feature_max,feature_min])
 
 def extract_features(our_DB):
@@ -47,7 +43,7 @@ def extract_features(our_DB):
     f_max = 22050 // 2
 
     for i, audio_file in enumerate(audio_files, start=1):
-        print(f"Processando {i}/{len(audio_files)}: {audio_file}")
+        print(f"A processar a musica {i}/{len(audio_files)}: {audio_file}")
         file_path = os.path.join(our_DB, audio_file)
         
         y, sr = librosa.load(file_path)
@@ -92,11 +88,9 @@ def extract_features(our_DB):
         
     all_features = np.array(all_features)
     all_normalized_features, maxs, mins = normalize_features(all_features)
-    
-    # Empilha os vetores: [min; max; features normalizadas]
     data = np.vstack([mins, maxs, all_normalized_features])
     
-    output_file = "features_db.csv"
+    output_file = "OUR_FM_ALL.csv"
     np.savetxt(output_file, data, delimiter=",", fmt="%.6f")
     print(f"Feito.")
 
@@ -108,7 +102,7 @@ def compare(file1, file2, tolerance=1e-4):
 
         for row_num, (row1, row2) in enumerate(zip(reader1, reader2), start=1):
             for col_num, (val1, val2) in enumerate(zip(row1, row2), start=1):
-                if(col_num >175 and col_num<169): #incluir isto para retirar f0
+                if(col_num >175 and col_num<169): #incluir isto para excluir f0
                     val1 = val1.strip()
                     val2 = val2.strip()
                     try:
@@ -123,20 +117,23 @@ def compare(file1, file2, tolerance=1e-4):
                             differences.append(
                                 f"Linha {row_num}, Coluna {col_num}: '{val1}' != '{val2}'"
                             )
-
-    if differences:
-        print("Diferenças encontradas:")
-        for diff in differences:
-            print(diff)
-    else:
-        print("Os arquivos são considerados equivalentes (com tolerância).")
+                            
+    base1 = os.path.splitext(os.path.basename(file1))[0]
+    base2 = os.path.splitext(os.path.basename(file2))[0]
+    output_file = f"{base1}_{base2}without_F0.txt"
+    with open(output_file, "w", encoding="utf-8") as out_file:
+        if differences:
+            out_file.write("Diferenças encontradas:\n")
+            out_file.writelines(f"{line}\n" for line in differences)
+        else:
+            out_file.write("Os arquivos são considerados equivalentes (com tolerância).\n")
 
 if __name__ == "__main__":
     plt.close('all')
     
     #--- Load file
     fName = "Queries/MT0000414517.mp3"
-    our_DB="allsongs" #aqui vai ser allsongs , apenas para testar agora queries
+    our_DB="allsongs"
     sr = 22050
     mono = True
     warnings.filterwarnings("ignore")
@@ -161,7 +158,7 @@ if __name__ == "__main__":
         
     #--- Extract features
     extract_features(our_DB)
-    compare("./features_db.csv","./validacao/FM_All.csv")    
+    compare("./OUR_FM_ALL.csv","./validacao/FM_All.csv")    
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
