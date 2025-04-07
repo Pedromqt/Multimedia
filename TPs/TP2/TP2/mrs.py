@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import os
 import csv
+import scipy.fft
 
 
 def normalize_features(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -94,6 +95,74 @@ def extract_features(our_DB):
     np.savetxt(output_file, data, delimiter=",", fmt="%.6f")
     print(f"Feito.")
 
+def custom_spectral_centroid(y, sr=22050, w=2048, h=512):
+    n_samples = len(y)
+    
+    pad_length = w + h * (int(np.ceil((n_samples - w) / h)))
+    if pad_length > n_samples:
+        y = np.pad(y, (0, pad_length - n_samples))
+    
+    n_samples = len(y)
+    n_frames = 1 + (n_samples - w) // h
+    
+    sc = np.zeros(n_frames)
+    
+    window = np.hanning(w)
+    freq_bins = np.fft.rfftfreq(w, 1/sr)
+    for i in range(n_frames):
+        start = i * h
+        end = start + w
+        
+        if end <= n_samples:
+            frame = y[start:end]
+            if len(frame) == w:
+                frame = frame * window
+                spectrum = np.abs(scipy.fft.rfft(frame))
+                
+                if np.sum(spectrum) > 0:
+                    sc[i] = np.sum(freq_bins * spectrum) / np.sum(spectrum)
+                else:
+                    sc[i] = 0
+    
+    return sc
+
+def compare_spectral_centroids(y, sr=22050):
+    sc_librosa = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=2048, hop_length=512)[0]
+    
+    sc_custom = custom_spectral_centroid(y, sr)
+    
+    min_length = min(len(sc_librosa) - 2, len(sc_custom))
+    
+    if min_length <= 0:
+        return 0.0, 0.0
+    
+    sc_librosa_adjusted = sc_librosa[2:2+min_length]
+    sc_custom_adjusted = sc_custom[:min_length]
+    
+    correlation = scipy.stats.pearsonr(sc_librosa_adjusted, sc_custom_adjusted)[0]
+    rmse = np.sqrt(np.mean((sc_librosa_adjusted - sc_custom_adjusted) ** 2))
+    
+    return correlation, rmse
+
+def save_metrics(filename, audios_folder):
+    audio_files = sorted(os.listdir(audios_folder))
+    results = []
+    
+    for i, audio_file in enumerate(audio_files, 1):
+        print(f"Processing file {i}/{len(audio_files)}: {audio_file}")
+        file_path = os.path.join(audios_folder, audio_file)
+        
+        try:
+            y, sr = librosa.load(file_path, sr=22050)
+            correlation, rmse = compare_spectral_centroids(y, sr)
+            results.append([correlation, rmse])
+        except Exception as e:
+            print(f"Error processing {audio_file}: {e}")
+            results.append([0.0, 0.0])
+
+    np.savetxt(filename, results, delimiter=',', comments='', fmt="%.6f")
+    print(f"Results saved to {filename}")
+
 def compare(file1, file2, tolerance=1e-4):
     differences = []
     with open(file1, newline='') as f1, open(file2, newline='') as f2:
@@ -157,8 +226,13 @@ if __name__ == "__main__":
     fig.colorbar(img, ax=ax, format="%+2.0f dB")
         
     #--- Extract features
-    extract_features(our_DB)
-    compare("./OUR_FM_ALL.csv","./validacao/FM_All.csv")    
+    #extract_features(our_DB)
+    #compare("./OUR_FM_ALL.csv","./validacao/FM_All.csv")   
+    #correlation, rmse = compare_spectral_centroids(y, sr)
+    #print(f"Pearson Correlation: {correlation:.6f}")
+    #print(f"RMSE: {rmse:.6f}") 
+    save_metrics("spectral_centroid_metrics.csv", our_DB)
+    compare("./spectral_centroid_metrics.csv", "./validacao/metricsSpectralCentroid.csv")
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
