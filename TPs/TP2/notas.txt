@@ -71,3 +71,13 @@ no final comparamos os dois array correlacao e rmse
 é natural algumas diferencas
 correlacao e desvio
 nao fazer divisao por 0 na funcao do SC
+
+
+3->
+features da query e da nossa bd
+Vamos calcular a similiriade com base nos vector
+3 metricas de distancia -> distancia euquelidiana, distancia de manhattan e distancia de cosseno
+podemos programar nos mesmos ou ir buscar a bibliotecas
+usamos os ficheiros de validacao e nao os nosso
+ver top 11 -> 10 um deles é a query
+quantas musicas têm em comum as tres metricas e explicar porque no relatorio
