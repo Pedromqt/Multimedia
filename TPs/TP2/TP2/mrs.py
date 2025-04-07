@@ -38,11 +38,12 @@ def extract_stats(feature):
 
 def extract_features(our_DB):
     audio_files = sorted(os.listdir(our_DB))
-    all_features = []
     print(f"{len(audio_files)} arquivos encontrados.")
     f_min = 20
     f_max = 22050 // 2
-
+    
+    all_features = np.zeros((len(audio_files), 0))
+    
     for i, audio_file in enumerate(audio_files, start=1):
         print(f"A processar a musica {i}/{len(audio_files)}: {audio_file}")
         file_path = os.path.join(our_DB, audio_file)
@@ -72,7 +73,7 @@ def extract_features(our_DB):
         rms_stats = extract_stats(rms)[0, :]
         zero_crossing_rate_stats = extract_stats(zero_crossing_rate)[0, :]
         
-        music_features = np.concatenate((
+        feature_parts = [
             mfcc_stats,
             spectral_centroid_stats,
             spectral_bandwidth_stats,
@@ -83,11 +84,21 @@ def extract_features(our_DB):
             rms_stats,
             zero_crossing_rate_stats,
             tempo
-        ))
+        ]
         
-        all_features.append(music_features)
+        total_length = sum(part.size for part in feature_parts)
+        music_features = np.zeros(total_length)
         
-    all_features = np.array(all_features)
+        current_pos = 0
+        for part in feature_parts:
+            part_size = part.size
+            music_features[current_pos:current_pos + part_size] = part
+            current_pos += part_size
+        
+        if i == 1:
+            all_features = np.zeros((len(audio_files), music_features.size))
+        all_features[i-1, :] = music_features
+        
     all_normalized_features, maxs, mins = normalize_features(all_features)
     data = np.vstack([mins, maxs, all_normalized_features])
     
