@@ -15,7 +15,7 @@ from scipy import stats
 import os
 import csv
 import scipy.fft
-
+from scipy.spatial.distance import euclidean, cityblock, cosine
 
 def normalize_features(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     maxs = np.max(matrix, axis=0)
@@ -208,6 +208,63 @@ def compare(file1, file2, tolerance=1e-4):
         else:
             out_file.write("Os arquivos são considerados equivalentes (com tolerância).\n")
 
+
+def compute_similarity_matrices(query_file, db_file, audio_folder="./allsongs", output_folder="output"):
+    os.makedirs(output_folder, exist_ok=True)
+
+    full_db = np.loadtxt(db_file, delimiter=",")
+    query = np.loadtxt(query_file, delimiter=",")
+    db_features = full_db[2:]
+    query_features = query[2]
+
+    euclidean_distances = []
+    manhattan_distances = []
+    cosine_distances = []
+
+    for song_vector in db_features:
+        euclidean_distances.append(euclidean(query_features, song_vector))
+        manhattan_distances.append(cityblock(query_features, song_vector))
+        cosine_distances.append(cosine(query_features, song_vector))
+
+    euclidean_distances = np.array(euclidean_distances)
+    manhattan_distances = np.array(manhattan_distances)
+    cosine_distances = np.array(cosine_distances)
+
+    np.savetxt(os.path.join(output_folder, "similarity_euclidean.csv"), euclidean_distances[:, None], delimiter=",", fmt="%.6f")
+    np.savetxt(os.path.join(output_folder, "similarity_manhattan.csv"), manhattan_distances[:, None], delimiter=",", fmt="%.6f")
+    np.savetxt(os.path.join(output_folder, "similarity_cosine.csv"), cosine_distances[:, None], delimiter=",", fmt="%.6f")
+
+    euclidean_top10_idx = np.argsort(euclidean_distances)[:11]
+    manhattan_top10_idx = np.argsort(manhattan_distances)[:11]
+    cosine_top10_idx = np.argsort(cosine_distances)[:11]
+
+    audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
+
+    euclidean_top10 = [(audio_files[i], euclidean_distances[i]) for i in euclidean_top10_idx]
+    manhattan_top10 = [(audio_files[i], manhattan_distances[i]) for i in manhattan_top10_idx]
+    cosine_top10 = [(audio_files[i], cosine_distances[i]) for i in cosine_top10_idx]
+
+    with open(os.path.join(output_folder, "rankings.txt"), "w") as f:
+        f.write("Ranking: Euclidean-------------\n")
+        for name, dist in euclidean_top10:
+            f.write(f"{name}\t{dist:.6f}\n")
+        f.write("\nRanking: Manhattan-------------\n")
+        for name, dist in manhattan_top10:
+            f.write(f"{name}\t{dist:.6f}\n")
+        f.write("\nRanking: Cosine-------------\n")
+        for name, dist in cosine_top10:
+            f.write(f"{name}\t{dist:.6f}\n")
+
+    inters = set([audio_files[i] for i in euclidean_top10_idx]) & \
+                  set([audio_files[i] for i in manhattan_top10_idx]) & \
+                  set([audio_files[i] for i in cosine_top10_idx])
+
+    print(f"Número de músicas em comum nos três rankings: {len(inters)}")
+    print(f"Músicas em comum: {sorted(inters)}")
+
+    return euclidean_top10, manhattan_top10, cosine_top10
+
+
 if __name__ == "__main__":
     plt.close('all')
     
@@ -242,8 +299,9 @@ if __name__ == "__main__":
     #correlation, rmse = compare_spectral_centroids(y, sr)
     #print(f"Pearson Correlation: {correlation:.6f}")
     #print(f"RMSE: {rmse:.6f}") 
-    save_metrics("spectral_centroid_metrics.csv", our_DB)
-    compare("./spectral_centroid_metrics.csv", "./validacao/metricsSpectralCentroid.csv")
+    #save_metrics("spectral_centroid_metrics.csv", our_DB)
+    #compare("./spectral_centroid_metrics.csv", "./validacao/metricsSpectralCentroid.csv")
+    compute_similarity_matrices(query_file="validacao/FM_Q.csv",db_file="./validacao/FM_All.csv",audio_folder="./allsongs",output_folder="results_ranking")
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
