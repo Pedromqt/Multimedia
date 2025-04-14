@@ -209,7 +209,7 @@ def compare(file1, file2, tolerance=1e-4):
             out_file.write("Os arquivos são considerados equivalentes (com tolerância).\n")
 
 
-def compute_similarity_matrices(query_file, db_file, audio_folder="./allsongs", output_folder="output"):
+def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder):
     os.makedirs(output_folder, exist_ok=True)
 
     full_db = np.loadtxt(db_file, delimiter=",")
