@@ -217,14 +217,17 @@ def compute_similarity_matrices(query_file, db_file, audio_folder="./allsongs", 
     db_features = full_db[2:]
     query_features = query[2]
 
-    euclidean_distances = []
-    manhattan_distances = []
-    cosine_distances = []
+    n_songs = db_features.shape[0]
+    euclidean_distances = np.zeros(n_songs)
+    manhattan_distances = np.zeros(n_songs)
+    cosine_distances = np.zeros(n_songs)
 
-    for song_vector in db_features:
-        euclidean_distances.append(euclidean(query_features, song_vector))
-        manhattan_distances.append(cityblock(query_features, song_vector))
-        cosine_distances.append(cosine(query_features, song_vector))
+    for i in range(n_songs):
+        song_vector = db_features[i]
+        euclidean_distances[i] = euclidean(query_features, song_vector)
+        manhattan_distances[i] = cityblock(query_features, song_vector)
+        cosine_distances[i] = cosine(query_features, song_vector)
+
 
     euclidean_distances = np.array(euclidean_distances)
     manhattan_distances = np.array(manhattan_distances)
@@ -255,14 +258,13 @@ def compute_similarity_matrices(query_file, db_file, audio_folder="./allsongs", 
         for name, dist in cosine_top10:
             f.write(f"{name}\t{dist:.6f}\n")
 
-    inters = set([audio_files[i] for i in euclidean_top10_idx]) & \
+    intersection = set([audio_files[i] for i in euclidean_top10_idx]) & \
                   set([audio_files[i] for i in manhattan_top10_idx]) & \
                   set([audio_files[i] for i in cosine_top10_idx])
 
-    print(f"Número de músicas em comum nos três rankings: {len(inters)}")
-    print(f"Músicas em comum: {sorted(inters)}")
+    print(f"Número de músicas em comum nos três rankings: {len(intersection)}")
+    print(f"Músicas em comum: {sorted(intersection)}")
 
-    return euclidean_top10, manhattan_top10, cosine_top10
 
 
 if __name__ == "__main__":
