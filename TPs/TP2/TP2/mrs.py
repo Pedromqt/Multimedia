@@ -258,13 +258,6 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
         for name, dist in cosine_top10:
             f.write(f"{name}\t{dist:.6f}\n")
 
-    intersection = set([audio_files[i] for i in euclidean_top10_idx]) & \
-                  set([audio_files[i] for i in manhattan_top10_idx]) & \
-                  set([audio_files[i] for i in cosine_top10_idx])
-
-    print(f"Número de músicas em comum nos três rankings: {len(intersection)}")
-    print(f"Músicas em comum: {sorted(intersection)}")
-
 
 
 if __name__ == "__main__":
