@@ -258,6 +258,108 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
         for name, dist in cosine_top10:
             f.write(f"{name}\t{dist:.6f}\n")
 
+def metadata(query_file, db_file, audio_folder):
+    query_metadata = []
+    db_metadata = []
+    
+    with open(query_file, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            query_metadata.append(row)
+    
+    with open(db_file, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            db_metadata.append(row)
+    
+    if not query_metadata or not db_metadata:
+        print("Error: Metadata files are empty or could not be read.")
+        return
+    
+    query = query_metadata[0]
+    
+    query_artist = query.get('Artist', '').lower()
+    print(f"Query Artist: {query_artist}")
+    query_genres = [genre.strip().lower() for genre in query.get('GenresStr', '').split(';') if genre.strip()]
+    print(f"Query Genres: {query_genres}")
+    query_moods = [mood.strip().lower() for mood in query.get('MoodsStrSplit', '').split(';') if mood.strip()]
+    print(f"Query Moods: {query_moods}")
+    
+    similarity_scores = []
+    song_ids = []
+    
+    for item in db_metadata:
+        score = 0
+        db_artist = item.get('Artist', '').lower()
+        db_genres = [genre.strip().lower() for genre in item.get('GenresStr', '').split(';') if genre.strip()]
+        db_moods = [mood.strip().lower() for mood in item.get('MoodsStrSplit', '').split(';') if mood.strip()]
+        
+        if query_artist == db_artist:
+            score += 1
+        
+        for genre in query_genres:
+            if genre in db_genres:
+                score += 1
+        
+        for mood in query_moods:
+            if mood in db_moods:
+                score += 1
+        
+        similarity_scores.append(score)
+        song_ids.append(item.get('SONG_ID', item.get('SongID', '')))
+    
+    audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
+    song_titles = [os.path.splitext(f)[0] for f in audio_files]
+    
+    indices = np.argsort(similarity_scores)[::-1]
+    top_10_indices = indices[:11]
+    
+    top_10_songs = [(song_titles[i], similarity_scores[i]) for i in top_10_indices if i < len(song_titles)]
+    
+    os.makedirs("results_ranking", exist_ok=True)
+    with open("results_ranking/rankings.txt", "a", encoding="utf-8") as f:
+        f.write("\n")
+        f.write("Ranking: Metadata Similarity-------------\n")
+        for title, score in top_10_songs:
+            f.write(f"{title}\t{score}\n")
+    
+    np.savetxt("results_ranking/similarity_metadata.csv", np.array(similarity_scores)[:, None], delimiter=",", fmt="%.1f")
+    
+    distance_files = {
+        "Euclidean": "results_ranking/similarity_euclidean.csv",
+        "Manhattan": "results_ranking/similarity_manhattan.csv",
+        "Cosine": "results_ranking/similarity_cosine.csv"
+    }
+    
+    relevant_songs = set([song_ids[i] for i in indices if similarity_scores[i] > 0])
+    
+    precision_results = {}
+    
+    for method_name, file_path in distance_files.items():
+        try:
+            distances = np.loadtxt(file_path, delimiter=",")
+            
+            dist_indices = np.argsort(distances.flatten())
+            
+            top_10_dist = [song_ids[i] for i in dist_indices[:11] if i < len(song_ids)]
+            
+            relevant_in_top10 = sum(1 for song in top_10_dist if song in relevant_songs)
+            precision = relevant_in_top10 / min(11, len(top_10_dist))
+            
+            precision_results[method_name] = precision
+            
+        except Exception as e:
+            print(f"Error calculating precision for {method_name}: {e}")
+            precision_results[method_name] = 0.0
+    
+    with open("results_ranking/precision_metrics.txt", "w", encoding="utf-8") as f:
+        f.write("Precision Metrics for Different Ranking Methods\n")
+        f.write("---------------------------------------------\n")
+        for method, precision in precision_results.items():
+            f.write(f"{method} Precision: {precision:.4f}\n")
+    
+    print("Metadata analysis and precision metrics calculation complete.")
+    return precision_results
 
 
 if __name__ == "__main__":
@@ -297,6 +399,7 @@ if __name__ == "__main__":
     #save_metrics("spectral_centroid_metrics.csv", our_DB)
     #compare("./spectral_centroid_metrics.csv", "./validacao/metricsSpectralCentroid.csv")
     compute_similarity_matrices(query_file="validacao/FM_Q.csv",db_file="./validacao/FM_All.csv",audio_folder="./allsongs",output_folder="results_ranking")
+    metadata(query_file="./query_metadata.csv",db_file="./panda_dataset_taffc_metadata.csv",audio_folder="./allsongs"); 
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)

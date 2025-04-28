@@ -1,0 +1,5 @@
+Precision Metrics for Different Ranking Methods
+---------------------------------------------
+Euclidean Precision: 1.0000
+Manhattan Precision: 1.0000
+Cosine Precision: 1.0000
