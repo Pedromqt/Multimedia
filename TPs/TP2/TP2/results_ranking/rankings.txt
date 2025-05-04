@@ -49,3 +49,7 @@ MT0000040632	7
 MT0003949060	7
 MT0008222676	3
 MT0010979481	3
+
+precision (Euclidean with Metadata): 20.0
+precision (Manhattan with Metadata): 20.0
+precision (Cosine with Metadata): 20.0

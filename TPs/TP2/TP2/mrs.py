@@ -243,6 +243,10 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
 
     audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
 
+    global euclidean_top10
+    global manhattan_top10
+    global cosine_top10
+
     euclidean_top10 = [(audio_files[i], euclidean_distances[i]) for i in euclidean_top10_idx]
     manhattan_top10 = [(audio_files[i], manhattan_distances[i]) for i in manhattan_top10_idx]
     cosine_top10 = [(audio_files[i], cosine_distances[i]) for i in cosine_top10_idx]
@@ -257,6 +261,23 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
         f.write("\nRanking: Cosine-------------\n")
         for name, dist in cosine_top10:
             f.write(f"{name}\t{dist:.6f}\n")
+
+def precision(meta_ranking, distance_ranking, name):
+    meta_titles = set([title.lower().strip() for title, _ in meta_ranking])
+    distance_titles = set([os.path.splitext(title)[0].lower().strip() for title, _ in distance_ranking])
+    
+    intersecao = meta_titles.intersection(distance_titles)
+    print(len(intersecao))
+    print(len(meta_titles))
+    precisao = ((len(intersecao)-1) / (len(meta_titles)-1)) * 100 
+
+    with open("results_ranking/rankings.txt", "a", encoding="utf-8") as f:
+        f.write(f"\nprecision ({name} with Metadata): {precisao:.1f}")
+
+    return precisao
+
+
+    
 
 def metadata(query_file, db_file, audio_folder):
     query_metadata = []
@@ -325,41 +346,11 @@ def metadata(query_file, db_file, audio_folder):
     
     np.savetxt("results_ranking/similarity_metadata.csv", np.array(similarity_scores)[:, None], delimiter=",", fmt="%.1f")
     
-    distance_files = {
-        "Euclidean": "results_ranking/similarity_euclidean.csv",
-        "Manhattan": "results_ranking/similarity_manhattan.csv",
-        "Cosine": "results_ranking/similarity_cosine.csv"
-    }
-    
-    relevant_songs = set([song_ids[i] for i in indices if similarity_scores[i] > 0])
-    
-    precision_results = {}
-    
-    for method_name, file_path in distance_files.items():
-        try:
-            distances = np.loadtxt(file_path, delimiter=",")
-            
-            dist_indices = np.argsort(distances.flatten())
-            
-            top_10_dist = [song_ids[i] for i in dist_indices[:11] if i < len(song_ids)]
-            
-            relevant_in_top10 = sum(1 for song in top_10_dist if song in relevant_songs)
-            precision = relevant_in_top10 / min(11, len(top_10_dist))
-            
-            precision_results[method_name] = precision
-            
-        except Exception as e:
-            print(f"Error calculating precision for {method_name}: {e}")
-            precision_results[method_name] = 0.0
-    
-    with open("results_ranking/precision_metrics.txt", "w", encoding="utf-8") as f:
-        f.write("Precision Metrics for Different Ranking Methods\n")
-        f.write("---------------------------------------------\n")
-        for method, precision in precision_results.items():
-            f.write(f"{method} Precision: {precision:.4f}\n")
-    
-    print("Metadata analysis and precision metrics calculation complete.")
-    return precision_results
+    precision(top_10_songs, euclidean_top10, "Euclidean")
+    precision(top_10_songs, manhattan_top10, "Manhattan")
+    precision(top_10_songs, cosine_top10, "Cosine")
+
+
 
 
 if __name__ == "__main__":
