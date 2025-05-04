@@ -264,7 +264,7 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
 
 def precision(meta_ranking, distance_ranking, name):
     meta_titles = set([title.lower().strip() for title, _ in meta_ranking])
-    distance_titles = set([os.path.splitext(title)[0].lower().strip() for title, _ in distance_ranking])
+    distance_titles = set([title.lower().strip() for title, _ in distance_ranking])
     
     intersecao = meta_titles.intersection(distance_titles)
     print(len(intersecao))
@@ -330,12 +330,11 @@ def metadata(query_file, db_file, audio_folder):
         song_ids.append(item.get('SONG_ID', item.get('SongID', '')))
     
     audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
-    song_titles = [os.path.splitext(f)[0] for f in audio_files]
     
     indices = np.argsort(similarity_scores)[::-1]
     top_10_indices = indices[:11]
     
-    top_10_songs = [(song_titles[i], similarity_scores[i]) for i in top_10_indices if i < len(song_titles)]
+    top_10_songs = [(audio_files[i], similarity_scores[i]) for i in top_10_indices if i < len(audio_files)]
     
     os.makedirs("results_ranking", exist_ok=True)
     with open("results_ranking/rankings.txt", "a", encoding="utf-8") as f:
