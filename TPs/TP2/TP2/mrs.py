@@ -267,32 +267,33 @@ def precision(meta_ranking, distance_ranking, name):
     distance_titles = set([title for title, _ in distance_ranking])
     
     intersecao = meta_titles.intersection(distance_titles)
-    print(len(intersecao))
-    print(len(meta_titles))
     precisao = ((len(intersecao)-1) / (len(meta_titles)-1)) * 100 
 
     with open("results_ranking/rankings.txt", "a", encoding="utf-8") as f:
         f.write(f"\nprecision ({name} with Metadata): {precisao:.1f}")
 
-    return precisao
 
-
-    
+def count_rows(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return sum(1 for _ in f) - 1
 
 def metadata(query_file, db_file, audio_folder):
-    query_metadata = []
-    db_metadata = []
-    
+    query_size = count_rows(query_file)
+    db_size = count_rows(db_file)
+
+    query_metadata = [None] * query_size
+    db_metadata = [None] * db_size
+
     with open(query_file, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            query_metadata.append(row)
-    
+        for i, row in enumerate(reader):
+            query_metadata[i] = row
+
     with open(db_file, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            db_metadata.append(row)
-    
+        for i, row in enumerate(reader):
+            db_metadata[i] = row
+
     if not query_metadata or not db_metadata:
         print("Error: Metadata files are empty or could not be read.")
         return
@@ -306,9 +307,9 @@ def metadata(query_file, db_file, audio_folder):
     query_moods = [mood.strip().lower() for mood in query.get('MoodsStrSplit', '').split(';') if mood.strip()]
     print(f"Query Moods: {query_moods}")
     
-    similarity_scores = []
-    song_ids = []
-    
+    similarity_scores = np.zeros(db_size)
+    song_ids = [None]*(db_size)
+    i=0
     for item in db_metadata:
         score = 0
         db_artist = item.get('Artist', '').lower()
@@ -326,8 +327,9 @@ def metadata(query_file, db_file, audio_folder):
             if mood in db_moods:
                 score += 1
         
-        similarity_scores.append(score)
-        song_ids.append(item.get('SONG_ID', item.get('SongID', '')))
+        similarity_scores[i]=score
+        song_ids[i]=item.get('SONG_ID', item.get('SongID', ''))
+        i=i+1
     
     audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
     
