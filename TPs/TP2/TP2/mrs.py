@@ -42,8 +42,6 @@ def extract_features(our_DB):
     f_min = 20
     f_max = 22050 // 2
     
-    all_features = np.zeros((len(audio_files), 0))
-    
     for i, audio_file in enumerate(audio_files, start=1):
         print(f"A processar a musica {i}/{len(audio_files)}: {audio_file}")
         file_path = os.path.join(our_DB, audio_file)
