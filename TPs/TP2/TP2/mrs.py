@@ -263,8 +263,8 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
             f.write(f"{name}\t{dist:.6f}\n")
 
 def precision(meta_ranking, distance_ranking, name):
-    meta_titles = set([title.lower().strip() for title, _ in meta_ranking])
-    distance_titles = set([title.lower().strip() for title, _ in distance_ranking])
+    meta_titles = set([title for title, _ in meta_ranking])
+    distance_titles = set([title for title, _ in distance_ranking])
     
     intersecao = meta_titles.intersection(distance_titles)
     print(len(intersecao))
