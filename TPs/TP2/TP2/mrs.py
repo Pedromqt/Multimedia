@@ -207,7 +207,7 @@ def compare(file1, file2, tolerance=1e-4):
             out_file.write("Os arquivos são considerados equivalentes (com tolerância).\n")
 
 
-def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder):
+def compute_similarity_matrices(pretended_top, query_file, db_file, audio_folder, output_folder):
     os.makedirs(output_folder, exist_ok=True)
 
     full_db = np.loadtxt(db_file, delimiter=",")
@@ -235,9 +235,9 @@ def compute_similarity_matrices(query_file, db_file, audio_folder, output_folder
     np.savetxt(os.path.join(output_folder, "similarity_manhattan.csv"), manhattan_distances[:, None], delimiter=",", fmt="%.6f")
     np.savetxt(os.path.join(output_folder, "similarity_cosine.csv"), cosine_distances[:, None], delimiter=",", fmt="%.6f")
 
-    euclidean_top10_idx = np.argsort(euclidean_distances)[:11]
-    manhattan_top10_idx = np.argsort(manhattan_distances)[:11]
-    cosine_top10_idx = np.argsort(cosine_distances)[:11]
+    euclidean_top10_idx = np.argsort(euclidean_distances)[:pretended_top]
+    manhattan_top10_idx = np.argsort(manhattan_distances)[:pretended_top]
+    cosine_top10_idx = np.argsort(cosine_distances)[:pretended_top]
 
     audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
 
@@ -275,7 +275,7 @@ def count_rows(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return sum(1 for _ in f) - 1
 
-def metadata(query_file, db_file, audio_folder):
+def metadata(pretended_top, query_file, db_file, audio_folder):
     query_size = count_rows(query_file)
     db_size = count_rows(db_file)
 
@@ -332,7 +332,7 @@ def metadata(query_file, db_file, audio_folder):
     audio_files = sorted([f for f in os.listdir(audio_folder) if f.endswith(".mp3")])
     
     indices = np.argsort(similarity_scores)[::-1]
-    top_10_indices = indices[:11]
+    top_10_indices = indices[:pretended_top]
     
     top_10_songs = [(audio_files[i], similarity_scores[i]) for i in top_10_indices if i < len(audio_files)]
     
@@ -388,8 +388,8 @@ if __name__ == "__main__":
     #print(f"RMSE: {rmse:.6f}") 
     #save_metrics("spectral_centroid_metrics.csv", our_DB)
     #compare("./spectral_centroid_metrics.csv", "./validacao/metricsSpectralCentroid.csv")
-    compute_similarity_matrices(query_file="validacao/FM_Q.csv",db_file="./validacao/FM_All.csv",audio_folder="./allsongs",output_folder="results_ranking")
-    metadata(query_file="./query_metadata.csv",db_file="./panda_dataset_taffc_metadata.csv",audio_folder="./allsongs"); 
+    compute_similarity_matrices(11,query_file="validacao/FM_Q.csv",db_file="./validacao/FM_All.csv",audio_folder="./allsongs",output_folder="results_ranking")
+    metadata(11,query_file="./query_metadata.csv",db_file="./panda_dataset_taffc_metadata.csv",audio_folder="./allsongs"); 
     sc = librosa.feature.spectral_centroid(y = y)  #default parameters: sr = 22050 Hz, mono, window length = frame length = 92.88 ms e hop length = 23.22 ms 
     sc = sc[0, :]
     print(sc.shape)
