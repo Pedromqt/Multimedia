@@ -180,7 +180,7 @@ def compare(file1, file2, tolerance=1e-4):
 
         for row_num, (row1, row2) in enumerate(zip(reader1, reader2), start=1):
             for col_num, (val1, val2) in enumerate(zip(row1, row2), start=1):
-                if(col_num >175 and col_num<169): #incluir isto para excluir f0
+                if(col_num >175 and col_num<169): #descomentar esta linha para excluir f0
                     val1 = val1.strip()
                     val2 = val2.strip()
                     try:
